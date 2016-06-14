@@ -1,6 +1,7 @@
 package org.duckdns.spacedock.upengine.upmaster;
 
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
+import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
 import org.duckdns.spacedock.upengine.libupsystem.RollGenerator.RollResult;
 
@@ -46,7 +47,7 @@ class CharacterAssembly
      */
     CharacterAssembly(int p_rm, int p_ND)
     {
-	m_perso = new BasicNPCFighter(p_rm);
+	m_perso = new Perso(p_rm);
 	m_targetND = p_ND;
 	m_rm = p_rm;
     }
@@ -56,7 +57,7 @@ class CharacterAssembly
      */
     String getLibellePerso()
     {
-	return m_perso.getLibellePerso();
+	return m_perso.toString();
     }
 
     /**
@@ -65,9 +66,10 @@ class CharacterAssembly
      * @param p_rolled dés lancés
      * @param p_kept dés gardés
      */
-    void setArme(int p_rolled, int p_kept)
+    void setArme(int p_indice)//TODO:nécessite mise à jour de l'application, pour l'instant ne permet que d'ajouter une arme et de la sélectionner, à terme il faut distinguer ces opérations en ajout dans l'inventaire et sélection de l'arme actuelle sans oublier lapossiblité de retirer une arme
     {
-	m_perso.setArme(new Arme(p_rolled, p_kept, 0, 0));
+	m_perso.getListArmes().add(new Arme(p_indice));
+	m_perso.setArmeCourante(m_perso.getListArmes().size() - 1);//après avoir ajouté une arme en queue, on définit l'arme courante comme étant la dernière a avoir été ajoutée
     }
 
     /**
@@ -75,7 +77,7 @@ class CharacterAssembly
      */
     int getVDRolled()
     {
-	return m_perso.getArme().getDesLances();
+	return m_perso.getArmeCourante().getDesLances();
     }
 
     /**
@@ -83,7 +85,7 @@ class CharacterAssembly
      */
     int getVDKept()
     {
-	return m_perso.getArme().getDesGardes();
+	return m_perso.getArmeCourante().getDesGardes();
     }
 
     /**
@@ -191,18 +193,15 @@ class CharacterAssembly
      */
     int attack(int p_currentPhase)
     {
-	int finalResult;
-	RollResult technicalResult = ((BasicNPCFighter) m_perso).attaquer(p_currentPhase, m_targetND);
+	Degats finalResult = new Degats(0, 0);
+	RollResult technicalResult = m_perso.attaquer(p_currentPhase, m_perso.getArmeCourante().getCategorie(), m_targetND);
 
 	if(technicalResult.isJetReussi())//extraction des dégâts
 	{
-	    finalResult = m_perso.genererDegats(technicalResult.getNbIncrements());
+	    finalResult = m_perso.genererDegats(technicalResult.getNbIncrements(), false);
 	}
-	else//aucun dégâts infligé
-	{
-	    finalResult = 0;
-	}
-	return (finalResult);
+
+	return (finalResult.getQuantite());//TODO one ne gère que les armes anciennes en valeur de retour
     }
 
     /**
@@ -212,7 +211,7 @@ class CharacterAssembly
      */
     void hurt(int p_damage)
     {
-	m_perso.etreBlesse(p_damage, 0);//TODO pour l'instant on ne gère que les armes anciennes, améliorer cela
+	m_perso.etreBlesse(new Degats(p_damage, 0));//TODO pour l'instant on ne gère que les armes anciennes, améliorer cela
     }
 
     /**

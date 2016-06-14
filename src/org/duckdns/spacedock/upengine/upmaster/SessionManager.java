@@ -282,15 +282,15 @@ public class SessionManager
      * @param p_rolled dés lancés
      * @param p_kept dés gardés
      */
-    public void setArme(int p_index, int p_rolled, int p_kept)
+    public void setArme(int p_index, int p_weaponId)
     {
-	if(p_index >= 0 && p_rolled >= 0 && p_kept >= 0)
+	if(p_weaponId >= 0)
 	{
-	    m_listFighters.get(p_index).setArme(p_rolled, p_kept);
+	    m_listFighters.get(p_index).setArme(p_weaponId);
 	}
 	else
 	{
-	    throw new IllegalArgumentException("indice et nombres de dés doivent être >=0");
+	    throw new IllegalArgumentException("identifiant d'arme < 0");
 	}
     }
 
