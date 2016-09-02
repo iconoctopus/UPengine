@@ -2,8 +2,10 @@ package org.duckdns.spacedock.upengine.upmaster;
 
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
+import org.duckdns.spacedock.upengine.libupsystem.ArmeCaC;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
-import org.duckdns.spacedock.upengine.libupsystem.RollGenerator.RollResult;
+import org.duckdns.spacedock.upengine.libupsystem.RollUtils.RollResult;
+import org.duckdns.spacedock.upengine.upmaster.SessionManager.AttackReport;
 
 /**
  * Created by iconoctopus on 6/6/16. Cette classe représente un personnage et
@@ -67,8 +69,8 @@ class CharacterAssembly
      * @param p_kept dés gardés
      */
     void setArme(int p_indice)//TODO:nécessite mise à jour de l'application, pour l'instant ne permet que d'ajouter une arme et de la sélectionner, à terme il faut distinguer ces opérations en ajout dans l'inventaire et sélection de l'arme actuelle sans oublier lapossiblité de retirer une arme
-    {
-	m_perso.getListArmes().add(new Arme(p_indice));
+    {//TODO pour l'instant on ne peut pas ajuster la qualité et l'équilibrage de l'arme
+	m_perso.getListArmes().add(new ArmeCaC(p_indice, Arme.QualiteArme.moyenne, Arme.EquilibrageArme.normal));
 	m_perso.setArmeCourante(m_perso.getListArmes().size() - 1);//après avoir ajouté une arme en queue, on définit l'arme courante comme étant la dernière a avoir été ajoutée
     }
 
@@ -114,7 +116,7 @@ class CharacterAssembly
     {
 	//TODO horrible calcul effectué ici car la libupsystem n'exporte pas le ND..... à modifier en amont puis reporter ici
 	int resultat = 0;
-	switch(m_rm)
+	switch (m_rm)
 	{
 	    case 1:
 		resultat = 10;
@@ -191,17 +193,17 @@ class CharacterAssembly
      * l'action est possible
      * @return les dégâts infligés
      */
-    int attack(int p_currentPhase)
+    AttackReport attack(int p_currentPhase)
     {
 	Degats finalResult = new Degats(0, 0);
-	RollResult technicalResult = m_perso.attaquer(p_currentPhase, m_perso.getArmeCourante().getCategorie(), m_targetND);
+	RollResult technicalResult = m_perso.attaquerCaC(p_currentPhase, m_targetND);
 
-	if(technicalResult.isJetReussi())//extraction des dégâts
+	if (technicalResult.isJetReussi())//extraction des dégâts
 	{
-	    finalResult = m_perso.genererDegats(technicalResult.getNbIncrements(), false);
+	    finalResult = m_perso.genererDegats(technicalResult.getNbIncrements());
 	}
 
-	return (finalResult.getQuantite());//TODO one ne gère que les armes anciennes en valeur de retour
+	return new AttackReport(finalResult.getQuantite(), technicalResult.isJetReussi(), isActive(p_currentPhase));//TODO on ne gère pas le type de l'armure de l'adversaire pour l'instant
     }
 
     /**
