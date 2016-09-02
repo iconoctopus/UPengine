@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import org.duckdns.spacedock.commonutils.ErrorHandler;
+import org.duckdns.spacedock.commonutils.PropertiesHandler;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 
@@ -94,8 +96,8 @@ public class SessionManager
      */
     public CreationReport addFighter(int p_rm)
     {
-	int newIndex;
-	boolean isActive;
+	int newIndex = 0;
+	boolean isActive = false;
 	if (p_rm > 0 && p_rm < 6)
 	{
 	    CharacterAssembly newFighter;
@@ -123,7 +125,7 @@ public class SessionManager
 	}
 	else
 	{
-	    throw new IllegalArgumentException("RM doit être compris entre 1 et 5 inclus");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getErrorMessage("erreurRM"));
 	}
 	return (new CreationReport(newIndex, isActive));
     }
@@ -145,7 +147,7 @@ public class SessionManager
 	}
 	else
 	{
-	    throw new IllegalArgumentException("Index<0");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
 	}
     }
 
@@ -184,7 +186,6 @@ public class SessionManager
 		}
 	    }
 	}
-
 	return m_listActiveFighters;
     }
 
@@ -198,9 +199,10 @@ public class SessionManager
      */
     public AttackReport attack(int p_index)
     {
+	AttackReport result = new AttackReport(new Degats(0, 0), true, true);
 	if (p_index >= 0)
 	{
-	    AttackReport result;
+
 	    CharacterAssembly attacker = m_listFighters.get(p_index);
 	    if (attacker.isActive(m_currentPhase))
 	    {
@@ -210,17 +212,17 @@ public class SessionManager
 		    m_listActiveFighters.remove(Integer.valueOf(p_index));
 		    m_activeFightersIterator = m_listActiveFighters.listIterator();
 		}
-		return result;
 	    }
 	    else
 	    {
-		throw new IllegalArgumentException("perso inactif");
+		ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getErrorMessage("persoInactif"));
 	    }
 	}
 	else
 	{
-	    throw new IllegalArgumentException("index<0");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
 	}
+	return result;
     }
 
     /**
@@ -236,7 +238,7 @@ public class SessionManager
 	int nbFlesh = 0;
 	int nbDrama = 0;
 	boolean isStunned = false;
-	boolean isOut;
+	boolean isOut = false;
 
 	if (p_index >= 0)
 	{
@@ -257,7 +259,7 @@ public class SessionManager
 	}
 	else
 	{
-	    throw new IllegalArgumentException("indice et dégâts doivent être supérieurs ou égaux à 0");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index + " " + PropertiesHandler.getInstance("upmaster").getString("damage") + ":" + p_damage);
 	}
 	return (new HealthReport(nbFlesh, nbDrama, isStunned, isOut));
     }
@@ -270,14 +272,16 @@ public class SessionManager
      */
     public String getName(int p_index)
     {
+	String result = "";
 	if (p_index >= 0)
 	{
-	    return m_listFighters.get(p_index).getLibellePerso();
+	    result = m_listFighters.get(p_index).getLibellePerso();
 	}
 	else
 	{
-	    throw new IllegalArgumentException("indice<0");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
 	}
+	return result;
     }
 
     /**
@@ -297,7 +301,7 @@ public class SessionManager
 	}
 	else
 	{
-	    throw new IllegalArgumentException("identifiant d'arme < 0");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
 	}
     }
 
@@ -307,14 +311,16 @@ public class SessionManager
      */
     public String getCurrentWeaponName(int p_index)
     {
+	String result = "";
 	if (p_index >= 0)
 	{
-	    return m_listFighters.get(p_index).getCurrentWeaponName();
+	    result = m_listFighters.get(p_index).getCurrentWeaponName();
 	}
 	else
 	{
-	    throw new IllegalArgumentException("indice < 0");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
 	}
+	return result;
     }
 
     /**
@@ -329,7 +335,7 @@ public class SessionManager
 	}
 	else
 	{
-	    throw new IllegalArgumentException("indice et ND doivent être >=0");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index + " " + PropertiesHandler.getInstance("upmaster").getString("ND") + ":" + p_ND);
 	}
     }
 
@@ -339,14 +345,16 @@ public class SessionManager
      */
     public int getTargetND(int p_index)
     {
+	int result = 0;
 	if (p_index >= 0)
 	{
-	    return m_listFighters.get(p_index).getTargetND();
+	    result = m_listFighters.get(p_index).getTargetND();
 	}
 	else
 	{
-	    throw new IllegalArgumentException("indice < 0");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
 	}
+	return result;
     }
 
     /**
@@ -358,14 +366,16 @@ public class SessionManager
      */
     public int getFighterND(int p_index, int p_weapType, boolean p_dodge)
     {
+	int result = 0;
 	if (p_index >= 0)
 	{
-	    return m_listFighters.get(p_index).getFighterND(p_weapType, p_dodge);
+	    result = m_listFighters.get(p_index).getFighterND(p_weapType, p_dodge);
 	}
 	else
 	{
-	    throw new IllegalArgumentException("indice < 0");
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
 	}
+	return result;
     }
 
     /**
