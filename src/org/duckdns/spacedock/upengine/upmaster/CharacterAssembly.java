@@ -25,11 +25,6 @@ class CharacterAssembly
      * ND de la cible courante
      */
     private int m_targetND;
-    /**
-     * le RM du personnage, devra à terme être supprimé car le ND du perso sera
-     * accessible à partir de la libupsystem
-     */
-    private final int m_rm;//TODO : ne servira à rien quand le ND sera acessible à partir de la libupsystem, a changer DQP
 
     /**
      * constructeur avec ND cible de 25 par défaut
@@ -51,7 +46,6 @@ class CharacterAssembly
     {
 	m_perso = new Perso(p_rm);
 	m_targetND = p_ND;
-	m_rm = p_rm;
     }
 
     /**
@@ -68,26 +62,19 @@ class CharacterAssembly
      * @param p_rolled dés lancés
      * @param p_kept dés gardés
      */
-    void setArme(int p_indice)//TODO:nécessite mise à jour de l'application, pour l'instant ne permet que d'ajouter une arme et de la sélectionner, à terme il faut distinguer ces opérations en ajout dans l'inventaire et sélection de l'arme actuelle sans oublier lapossiblité de retirer une arme
-    {//TODO pour l'instant on ne peut pas ajuster la qualité et l'équilibrage de l'arme
-	m_perso.getListArmes().add(new ArmeCaC(p_indice, Arme.QualiteArme.moyenne, Arme.EquilibrageArme.normal));
+    void setCurrentWeapon(int p_index, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)//TODO:nécessite mise à jour de l'application, pour l'instant ne permet que d'ajouter une arme et de la sélectionner, à terme il faut distinguer ces opérations en ajout dans l'inventaire et sélection de l'arme actuelle sans oublier lapossiblité de retirer une arme
+    {
+	m_perso.getListArmes().add(new ArmeCaC(p_index, p_quality, p_balance));
 	m_perso.setArmeCourante(m_perso.getListArmes().size() - 1);//après avoir ajouté une arme en queue, on définit l'arme courante comme étant la dernière a avoir été ajoutée
     }
 
     /**
-     * @return dés lancés de la VD de l'arme
+     *
+     * @return le nom de l'arme actuellement brandie
      */
-    int getVDRolled()
+    String getCurrentWeaponName()
     {
-	return m_perso.getArmeCourante().getDesLances();
-    }
-
-    /**
-     * @return les dés gardés de la VD de l'arme
-     */
-    int getVDKept()
-    {
-	return m_perso.getArmeCourante().getDesGardes();
+	return m_perso.getArmeCourante().toString();
     }
 
     /**
@@ -112,30 +99,9 @@ class CharacterAssembly
      *
      * @return le ND propre du combattant
      */
-    int getFighterND()
+    int getFighterND(int p_weapType, boolean p_dodge)
     {
-	//TODO horrible calcul effectué ici car la libupsystem n'exporte pas le ND..... à modifier en amont puis reporter ici
-	int resultat = 0;
-	switch (m_rm)
-	{
-	    case 1:
-		resultat = 10;
-		break;
-	    case 2:
-		resultat = 15;
-		break;
-	    case 3:
-		resultat = 25;
-		break;
-	    case 4:
-		resultat = 30;
-		break;
-	    case 5:
-		resultat = 35;
-		break;
-	}
-	return (resultat);
-
+	return (m_perso.getNDPassif(p_weapType, m_perso.getArmeCourante().getCategorie(), p_dodge));
     }
 
     /**
@@ -202,8 +168,7 @@ class CharacterAssembly
 	{
 	    finalResult = m_perso.genererDegats(technicalResult.getNbIncrements());
 	}
-
-	return new AttackReport(finalResult.getQuantite(), technicalResult.isJetReussi(), isActive(p_currentPhase));//TODO on ne gère pas le type de l'armure de l'adversaire pour l'instant
+	return new AttackReport(finalResult, technicalResult.isJetReussi(), isActive(p_currentPhase));
     }
 
     /**
@@ -211,9 +176,9 @@ class CharacterAssembly
      *
      * @param p_damage les dommages a infliger
      */
-    void hurt(int p_damage)
+    void hurt(Degats p_degats)
     {
-	m_perso.etreBlesse(new Degats(p_damage, 0));//TODO pour l'instant on ne gère que les armes anciennes, améliorer cela
+	m_perso.etreBlesse(p_degats);
     }
 
     /**

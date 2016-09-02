@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import org.duckdns.spacedock.upengine.libupsystem.Arme;
+import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 
-//TODO : les méthodes pour avancer de phase, ajouter un combattant, en retirer un ou en faire attaquer un devraient retourner un objet d'une classe adaptée (pas juste un actionresult générique), l'idée est de supprimer les getter qui brisent l'encapsulation pour les remplacer par un retour d'information intelligent de la part du SessionManager
 /**
  * Contrôleur gérant la session à la fois comme singleton de configuration mais
  * aussi avec des méthodes de contrôle
@@ -20,21 +21,6 @@ import java.util.ListIterator;
 public class SessionManager
 {
 
-    /*TODO : notes de transition
-     *
-     * le fait de faire attaquer un personnage ne renvoie plus un CreationReport générique mais un résultat d'attaque plus construit
-     *
-     *ActionResult est renommée en CreationReport et ses méthodes internes aussi
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     */
     /**
      * premier indice libre à la fin de la liste des combattants (il peut y a
      * voir des trous dans la liste)
@@ -54,18 +40,18 @@ public class SessionManager
     /**
      * liste des personnages
      */
-    private ArrayList<CharacterAssembly> m_listFighters = new ArrayList<>();
+    private final ArrayList<CharacterAssembly> m_listFighters = new ArrayList<>();
 
     /**
      * liste des indices libres dans la liste des combattants
      */
-    private LinkedList<Integer> m_listFreeIndex = new LinkedList<>();
-    private ListIterator<Integer> m_indexIterator = m_listFreeIndex.listIterator();
+    private final LinkedList<Integer> m_listFreeIndex = new LinkedList<>();
+    private final ListIterator<Integer> m_indexIterator = m_listFreeIndex.listIterator();
 
     /**
      * liste des personnages actifs dans la phase en cours
      */
-    private LinkedList<Integer> m_listActiveFighters = new LinkedList<>();
+    private final LinkedList<Integer> m_listActiveFighters = new LinkedList<>();
     private ListIterator<Integer> m_activeFightersIterator = m_listActiveFighters.listIterator();
 
     /**
@@ -245,14 +231,14 @@ public class SessionManager
      * @return une structure contenant le nombres de blessures légères et graves
      * ainsi que le statut sonné/inconscient du personnage
      */
-    public HealthReport hurt(int p_index, int p_damage)
+    public HealthReport hurt(int p_index, Degats p_damage)
     {
 	int nbFlesh = 0;
 	int nbDrama = 0;
 	boolean isStunned = false;
 	boolean isOut;
 
-	if (p_index >= 0 && p_damage >= 0)
+	if (p_index >= 0)
 	{
 	    CharacterAssembly victim = m_listFighters.get(p_index);
 	    victim.hurt(p_damage);
@@ -298,15 +284,16 @@ public class SessionManager
      * affecte l'arme passée en paramétre au combattant d'indice passé en
      * paramétre
      *
-     * @param p_index indice du combattant
-     * @param p_rolled dés lancés
-     * @param p_kept dés gardés
+     * @param p_index
+     * @param p_weaponId
+     * @param p_quality
+     * @param p_balance
      */
-    public void setArme(int p_index, int p_weaponId)
+    public void setCurrentWeapon(int p_index, int p_weaponId, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)
     {
 	if (p_weaponId >= 0)
 	{
-	    m_listFighters.get(p_index).setArme(p_weaponId);
+	    m_listFighters.get(p_index).setCurrentWeapon(p_weaponId, p_quality, p_balance);
 	}
 	else
 	{
@@ -316,29 +303,13 @@ public class SessionManager
 
     /**
      * @param p_index indice du combattant
-     * @return dés lancés de l'arme du combattant
+     * @return le nom de l'arme portée par le combattant visé
      */
-    public int getVDRolled(int p_index)
+    public String getCurrentWeaponName(int p_index)
     {
 	if (p_index >= 0)
 	{
-	    return m_listFighters.get(p_index).getVDRolled();
-	}
-	else
-	{
-	    throw new IllegalArgumentException("indice < 0");
-	}
-    }
-
-    /**
-     * @param p_index indice du combattant
-     * @return dés gardés de l'arme du combattant
-     */
-    public int getVDKept(int p_index)
-    {
-	if (p_index >= 0)
-	{
-	    return m_listFighters.get(p_index).getVDKept();
+	    return m_listFighters.get(p_index).getCurrentWeaponName();
 	}
 	else
 	{
@@ -379,14 +350,17 @@ public class SessionManager
     }
 
     /**
-     * @param p_index indice du combattant
-     * @return le ND du combattant lui-même
+     *
+     * @param p_index
+     * @param p_weapType
+     * @param p_dodge
+     * @return
      */
-    public int getFighterND(int p_index)
+    public int getFighterND(int p_index, int p_weapType, boolean p_dodge)
     {
 	if (p_index >= 0)
 	{
-	    return m_listFighters.get(p_index).getFighterND();
+	    return m_listFighters.get(p_index).getFighterND(p_weapType, p_dodge);
 	}
 	else
 	{
@@ -452,30 +426,30 @@ public class SessionManager
     public static class AttackReport
     {
 
-	private final int m_damage;
-	private final boolean m_assessment;
+	private final Degats m_damage;
+	boolean m_assessment;
 	private final boolean m_stillActive;
 
-	public AttackReport(int p_damage, boolean p_assessment, boolean p_stillActive)
+	public AttackReport(Degats p_damage, boolean p_assessment, boolean p_stillActive)
 	{
 	    m_damage = p_damage;
 	    m_assessment = p_assessment;
 	    m_stillActive = p_stillActive;
 	}
 
-	public int getDamage()
+	public Degats getDamage()
 	{
 	    return m_damage;
+	}
+
+	public boolean assess()
+	{
+	    return m_assessment;
 	}
 
 	public boolean isStillAtive()
 	{
 	    return m_stillActive;
-	}
-
-	public boolean assess()
-	{
-	    return (m_assessment);
 	}
     }
 
@@ -518,5 +492,4 @@ public class SessionManager
 	    return (m_dramaNumber);
 	}
     }
-
 }
