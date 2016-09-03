@@ -245,21 +245,15 @@ public class SessionManager
 	    CharacterAssembly victim = m_listFighters.get(p_index);
 	    victim.hurt(p_damage);
 
-	    if (victim.isOut())//si la victime est éliminée on ne va pas plus loin dans l'évaluation de son statut
-	    {
-		isOut = true;
-	    }
-	    else
-	    {
-		isOut = false;
-		nbFlesh = victim.getNbFleshWounds();
-		nbDrama = victim.getNbDramaWounds();
-		isStunned = victim.isStunned();
-	    }
+	    isOut = victim.isOut();
+	    nbFlesh = victim.getNbFleshWounds();
+	    nbDrama = victim.getNbDramaWounds();
+	    isStunned = victim.isStunned();
+
 	}
 	else
 	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index + " " + PropertiesHandler.getInstance("upmaster").getString("damage") + ":" + p_damage);
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
 	}
 	return (new HealthReport(nbFlesh, nbDrama, isStunned, isOut));
     }
@@ -293,7 +287,7 @@ public class SessionManager
      * @param p_quality
      * @param p_balance
      */
-    public void setCurrentWeapon(int p_index, int p_weaponId, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)
+    public void setWeapon(int p_index, int p_weaponId, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)
     {
 	if (p_weaponId >= 0)
 	{

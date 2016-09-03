@@ -1,10 +1,12 @@
 package org.duckdns.spacedock.upengine.upmaster;
 
+import java.util.ArrayList;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeCaC;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
 import org.duckdns.spacedock.upengine.libupsystem.RollUtils.RollResult;
+import org.duckdns.spacedock.upengine.libupsystem.UPReference;
 import org.duckdns.spacedock.upengine.upmaster.SessionManager.AttackReport;
 
 /**
@@ -62,9 +64,9 @@ class CharacterAssembly
      * @param p_rolled dés lancés
      * @param p_kept dés gardés
      */
-    void setCurrentWeapon(int p_index, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)//TODO:nécessite mise à jour de l'application, pour l'instant ne permet que d'ajouter une arme et de la sélectionner, à terme il faut distinguer ces opérations en ajout dans l'inventaire et sélection de l'arme actuelle sans oublier lapossiblité de retirer une arme
+    void setCurrentWeapon(int p_index, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)//TODO:nécessite mise à jour de l'application, pour l'instant ne permet que d'ajouter une arme et de la sélectionner, à terme il faut distinguer ces opérations en ajout dans l'inventaire et sélection de l'arme actuelle sans oublier la possiblité de retirer une arme, de plus on ne retire jamais les armes ajoutées ce qui est un problème (assez minime, il en faudrait un nombre considérable pour que cela ait un effet en RAM)
     {
-	m_perso.getListArmes().add(new ArmeCaC(p_index, p_quality, p_balance));
+	m_perso.addArme(new ArmeCaC(p_index, p_quality, p_balance));
 	m_perso.setArmeCourante(m_perso.getListArmes().size() - 1);//après avoir ajouté une arme en queue, on définit l'arme courante comme étant la dernière a avoir été ajoutée
     }
 
@@ -74,7 +76,14 @@ class CharacterAssembly
      */
     String getCurrentWeaponName()
     {
-	return m_perso.getArmeCourante().toString();
+	Arme currentWeapon = m_perso.getArmeCourante();
+
+	String weapName = UPReference.getInstance().getLblCatArmeCaC(0);
+	if (currentWeapon != null)
+	{
+	    weapName = currentWeapon.toString();
+	}
+	return weapName;
     }
 
     /**
@@ -101,7 +110,13 @@ class CharacterAssembly
      */
     int getFighterND(int p_weapType, boolean p_dodge)
     {
-	return (m_perso.getNDPassif(p_weapType, m_perso.getArmeCourante().getCategorie(), p_dodge));
+	Arme currentWeapon = m_perso.getArmeCourante();
+	int weapCategory = 0;
+	if (currentWeapon != null)
+	{
+	    weapCategory = currentWeapon.getCategorie();
+	}
+	return (m_perso.getNDPassif(p_weapType, weapCategory, p_dodge));
     }
 
     /**
