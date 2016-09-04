@@ -1,9 +1,13 @@
 package org.duckdns.spacedock.upengine.upmaster;
 
+import org.duckdns.spacedock.commonutils.PropertiesHandler;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeCaC;
+import org.duckdns.spacedock.upengine.libupsystem.ArmeDist;
+import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
+import org.duckdns.spacedock.upengine.libupsystem.PieceArmure;
 import org.duckdns.spacedock.upengine.libupsystem.RollUtils.RollResult;
 import org.duckdns.spacedock.upengine.libupsystem.UPReference;
 import org.duckdns.spacedock.upengine.upmaster.SessionManager.AttackReport;
@@ -58,15 +62,53 @@ class CharacterAssembly
     }
 
     /**
-     * Permet de spécifier une arme
+     * Permet de spécifier une arme. Tolère les erreurs : placer une épée à deux
+     * mains ici alors que le bouclier est équipé va simplement retirer ce
+     * dernier
      *
      * @param p_rolled dés lancés
      * @param p_kept dés gardés
      */
-    void setCurrentWeapon(int p_index, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)//TODO:nécessite mise à jour de l'application, pour l'instant ne permet que d'ajouter une arme et de la sélectionner, à terme il faut distinguer ces opérations en ajout dans l'inventaire et sélection de l'arme actuelle sans oublier la possiblité de retirer une arme, de plus on ne retire jamais les armes ajoutées ce qui est un problème (assez minime, il en faudrait un nombre considérable pour que cela ait un effet en RAM)
+    void setCurrentWeapon(int p_index, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)
+    {//TODO pour l'instant on ne s'occupe que du port d'une seule arme, forcément à droite
+
+	Inventaire inventaire = m_perso.getInventaire();
+
+	Arme arme;
+	if (UPReference.getInstance().getModArme(p_index) == 0)
+	{
+	    arme = new ArmeCaC(p_index, p_quality, p_balance);
+	}
+	else
+	{
+	    arme = new ArmeDist(p_index, p_quality, p_balance);
+	}
+
+	if (arme.getNbMainsArme() == 2)
+	{
+	    if (inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE) != null)//TODO le bouclier est forcément à gauche pour l'instant
+	    {
+		inventaire.removeBouclier(Inventaire.Lateralisation.GAUCHE);
+	    }
+	}
+	if (inventaire.getArmeCourante() != null)
+	{
+	    inventaire.removeArme(Inventaire.Lateralisation.DROITE);
+	}
+	inventaire.addArme(arme, Inventaire.Lateralisation.DROITE);
+    }
+
+    /**
+     * supprime l'arme principale du personnage. Tolère les erreurs : si aucune
+     * arme n'est équipée, l'inventaire rest ainsi
+     */
+    void delWeapon()
     {
-	m_perso.addArme(new ArmeCaC(p_index, p_quality, p_balance));
-	m_perso.setArmeCourante(m_perso.getListArmes().size() - 1);//après avoir ajouté une arme en queue, on définit l'arme courante comme étant la dernière a avoir été ajoutée
+	Inventaire inventaire = m_perso.getInventaire();
+	if (inventaire.getArmeCourante() != null)
+	{
+	    inventaire.removeArme(Inventaire.Lateralisation.DROITE);
+	}
     }
 
     /**
@@ -75,7 +117,7 @@ class CharacterAssembly
      */
     String getCurrentWeaponName()
     {
-	Arme currentWeapon = m_perso.getArmeCourante();
+	Arme currentWeapon = m_perso.getInventaire().getArmeCourante();
 
 	String weapName = UPReference.getInstance().getLblCatArmeCaC(0);
 	if (currentWeapon != null)
@@ -83,6 +125,102 @@ class CharacterAssembly
 	    weapName = currentWeapon.toString();
 	}
 	return weapName;
+    }
+
+    /**
+     * renvoie le nom de la pièce d'armure portée à l'emplacement indiqué
+     *
+     * @param p_zone
+     * @return
+     */
+    String getPieceArmureName(Inventaire.ZoneEmplacement p_zone)
+    {
+	return m_perso.getInventaire().getPieceArmure(p_zone).toString();
+    }
+
+    /**
+     * insère une pièce d'armure à l'emplacement indiqué. Tolérant aux erreurs :
+     * remplace si occuoé
+     *
+     * @param p_index
+     * @param p_zone
+     * @return
+     */
+    void setPieceArmure(int p_index, int p_materiau, int p_type, Inventaire.ZoneEmplacement p_zone)
+    {
+	Inventaire inventaire = m_perso.getInventaire();
+	if (inventaire.getPieceArmure(p_zone) != null)
+	{
+	    inventaire.removePieceArmure(p_zone);
+	}
+
+	inventaire.addPieceArmure(new PieceArmure(p_index, p_materiau, p_type, false), p_zone);
+    }
+
+    /**
+     * supprime une pièce d'armure
+     *
+     * @param p_zone
+     */
+    void delPieceArmure(Inventaire.ZoneEmplacement p_zone)
+    {
+	Inventaire inventaire = m_perso.getInventaire();
+	if (inventaire.getPieceArmure(p_zone) != null)
+	{
+	    inventaire.removePieceArmure(p_zone);
+	}
+    }
+
+    /**
+     * renvoie le nom du bouclier si il y en a un ou "aucun" si il n'y en a pas
+     *
+     * @return
+     */
+    String getBouclierName()
+    {//TODO en l'absence de localisation le bouclier est pour l'instant forcément à gauche
+	Inventaire inventaire = m_perso.getInventaire();
+	String res = PropertiesHandler.getInstance("upmaster").getString("aucun");
+	PieceArmure bouclier = inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE);
+	if (bouclier != null)
+	{
+	    res = bouclier.toString();
+	}
+	return res;
+    }
+
+    /**
+     * met un bouclier en place. Résistant aux erreurs : si une arme à deux
+     * mains est installée elle est retirée pour mettre le bouclier
+     *
+     * @param p_index
+     * @param p_materiau
+     * @param p_type
+     */
+    void setBouclier(int p_index, int p_materiau, int p_type)
+    {
+	Inventaire inventaire = m_perso.getInventaire();
+	Arme armeCourante = inventaire.getArmeCourante();
+	if (armeCourante != null)
+	{
+	    if (armeCourante.getNbMainsArme() > 1)//l'arme courante utilie deux mains, on la supprime donc pour installer le bouclier
+	    {
+		delWeapon();
+	    }
+	}
+	inventaire.addBouclier(new PieceArmure(p_index, p_materiau, p_type, true), Inventaire.Lateralisation.GAUCHE);//TODO le bouclier est forcément à gauche
+    }
+
+    /**
+     * supprime le bouclier porté, résiste aux erreurs : si aucun bouclier, il
+     * ne se passe juste rien
+     */
+    void delBouclier()
+    {
+	Inventaire inventaire = m_perso.getInventaire();
+	if (inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE) != null)//TODO le bouclier est forcément à gauche
+	{
+	    inventaire.removeBouclier(Inventaire.Lateralisation.GAUCHE);
+	}
     }
 
     /**
@@ -109,7 +247,7 @@ class CharacterAssembly
      */
     int getFighterND(int p_weapType, boolean p_dodge)
     {
-	Arme currentWeapon = m_perso.getArmeCourante();
+	Arme currentWeapon = m_perso.getInventaire().getArmeCourante();
 	int weapCategory = 0;
 	if (currentWeapon != null)
 	{

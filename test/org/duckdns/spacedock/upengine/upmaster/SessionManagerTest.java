@@ -74,15 +74,6 @@ public class SessionManagerTest
 	Assert.assertEquals("PersoRM1", manager.getName(fighter1));
 	Assert.assertEquals("PersoRM2", manager.getName(fighter2));
 	Assert.assertEquals("PersoRM3", manager.getName(fighter3));
-	try
-	{
-	    manager.getName(-1);
-	    fail();
-	}
-	catch (IllegalArgumentException e)
-	{
-	    Assert.assertEquals("paramétre aberrant:indice:-1", e.getMessage());
-	}
 
 	//test cohérence de la liste
 	manager.delFighter(fighter2);
@@ -128,7 +119,6 @@ public class SessionManagerTest
 	    Assert.assertEquals("paramétre aberrant:indice:-1", e.getMessage());
 	}
 
-	//TODO ajouter et tester fonctionalité pour rengainer
 	//test sur le ND cible
 	manager.setTargetND(fighter, 23);
 	Assert.assertEquals(23, manager.getTargetND(fighter));

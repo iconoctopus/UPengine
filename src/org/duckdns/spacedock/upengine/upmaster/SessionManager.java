@@ -13,6 +13,7 @@ import org.duckdns.spacedock.commonutils.ErrorHandler;
 import org.duckdns.spacedock.commonutils.PropertiesHandler;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
+import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
 
 /**
  * Contrôleur gérant la session à la fois comme singleton de configuration mais
@@ -137,18 +138,11 @@ public class SessionManager
      */
     public void delFighter(int p_index)
     {
-	if (p_index >= 0)
-	{
-	    m_indexIterator.add(p_index);
-	    m_indexIterator.previous();//replace le curseur au cran d'avant afin que hasNext() puisse répondre true lors de sa prochaine interrogation
-	    m_listFighters.set(p_index, null);//le combattant est supprimé de la liste (avec set() et pas remove() afin que sa case reste libre pour ne pas bordéliser les indices des autres
-	    m_listActiveFighters.remove(Integer.valueOf(p_index));//on enlève le combattant de la liste des combatants actifs
-	    m_activeFightersIterator = m_listActiveFighters.listIterator();//reset de l'itérateur associé
-	}
-	else
-	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
-	}
+	m_indexIterator.add(p_index);
+	m_indexIterator.previous();//replace le curseur au cran d'avant afin que hasNext() puisse répondre true lors de sa prochaine interrogation
+	m_listFighters.set(p_index, null);//le combattant est supprimé de la liste (avec set() et pas remove() afin que sa case reste libre pour ne pas bordéliser les indices des autres
+	m_listActiveFighters.remove(Integer.valueOf(p_index));//on enlève le combattant de la liste des combatants actifs
+	m_activeFightersIterator = m_listActiveFighters.listIterator();//reset de l'itérateur associé
     }
 
     /**
@@ -200,28 +194,22 @@ public class SessionManager
     public AttackReport attack(int p_index)
     {
 	AttackReport result = new AttackReport(new Degats(0, 0), true, true);
-	if (p_index >= 0)
-	{
 
-	    CharacterAssembly attacker = m_listFighters.get(p_index);
-	    if (attacker.isActive(m_currentPhase))
+	CharacterAssembly attacker = m_listFighters.get(p_index);
+	if (attacker.isActive(m_currentPhase))
+	{
+	    result = attacker.attack(m_currentPhase);
+	    if (!result.isStillAtive())//si le combattant n'est plus actif on le retire de la liste de combattans actifs
 	    {
-		result = attacker.attack(m_currentPhase);
-		if (!result.isStillAtive())//si le combattant n'est plus actif on le retire de la liste de combattans actifs
-		{
-		    m_listActiveFighters.remove(Integer.valueOf(p_index));
-		    m_activeFightersIterator = m_listActiveFighters.listIterator();
-		}
-	    }
-	    else
-	    {
-		ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getErrorMessage("persoInactif"));
+		m_listActiveFighters.remove(Integer.valueOf(p_index));
+		m_activeFightersIterator = m_listActiveFighters.listIterator();
 	    }
 	}
 	else
 	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getErrorMessage("persoInactif"));
 	}
+
 	return result;
     }
 
@@ -235,27 +223,10 @@ public class SessionManager
      */
     public HealthReport hurt(int p_index, Degats p_damage)
     {
-	int nbFlesh = 0;
-	int nbDrama = 0;
-	boolean isStunned = false;
-	boolean isOut = false;
+	CharacterAssembly victim = m_listFighters.get(p_index);
+	victim.hurt(p_damage);
 
-	if (p_index >= 0)
-	{
-	    CharacterAssembly victim = m_listFighters.get(p_index);
-	    victim.hurt(p_damage);
-
-	    isOut = victim.isOut();
-	    nbFlesh = victim.getNbFleshWounds();
-	    nbDrama = victim.getNbDramaWounds();
-	    isStunned = victim.isStunned();
-
-	}
-	else
-	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
-	}
-	return (new HealthReport(nbFlesh, nbDrama, isStunned, isOut));
+	return (new HealthReport(victim.getNbFleshWounds(), victim.getNbDramaWounds(), victim.isStunned(), victim.isOut()));
     }
 
     /**
@@ -266,16 +237,7 @@ public class SessionManager
      */
     public String getName(int p_index)
     {
-	String result = "";
-	if (p_index >= 0)
-	{
-	    result = m_listFighters.get(p_index).getLibellePerso();
-	}
-	else
-	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
-	}
-	return result;
+	return m_listFighters.get(p_index).getLibellePerso();
     }
 
     /**
@@ -289,14 +251,82 @@ public class SessionManager
      */
     public void setWeapon(int p_index, int p_weaponId, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)
     {
-	if (p_weaponId >= 0)
-	{
-	    m_listFighters.get(p_index).setCurrentWeapon(p_weaponId, p_quality, p_balance);
-	}
-	else
-	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
-	}
+	m_listFighters.get(p_index).setCurrentWeapon(p_weaponId, p_quality, p_balance);
+    }
+
+    /**
+     * passe le combattant en question à mains nues
+     *
+     * @param p_index
+     */
+    public void delWeapon(int p_index)
+    {
+	m_listFighters.get(p_index).delWeapon();
+    }
+
+    /**
+     *
+     * @param p_fighterIndex
+     * @param p_zone
+     * @return
+     */
+    public String getPieceArmureName(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
+    {
+	return m_listFighters.get(p_fighterIndex).getPieceArmureName(p_zone);
+    }
+
+    /**
+     *
+     * @param p_fighterIndex
+     * @param p_index
+     * @param p_materiau
+     * @param p_type
+     * @param p_zone
+     */
+    public void setPieceArmure(int p_fighterIndex, int p_index, int p_materiau, int p_type, Inventaire.ZoneEmplacement p_zone)
+    {
+	m_listFighters.get(p_fighterIndex).setPieceArmure(p_index, p_materiau, p_type, p_zone);
+    }
+
+    /**
+     *
+     * @param p_fighterIndex
+     * @param p_zone
+     */
+    public void delPieceArmure(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
+    {
+	m_listFighters.get(p_fighterIndex).delPieceArmure(p_zone);
+    }
+
+    /**
+     *
+     * @param p_fighterIndex
+     * @return
+     */
+    public String getBouclierName(int p_fighterIndex)
+    {
+	return m_listFighters.get(p_fighterIndex).getBouclierName();
+    }
+
+    /**
+     *
+     * @param p_fighterIndex
+     * @param p_index
+     * @param p_materiau
+     * @param p_type
+     */
+    public void setBouclier(int p_fighterIndex, int p_index, int p_materiau, int p_type)
+    {
+	m_listFighters.get(p_fighterIndex).setBouclier(p_index, p_materiau, p_type);
+    }
+
+    /**
+     *
+     * @param p_fighterIndex
+     */
+    public void delBouclier(int p_fighterIndex)
+    {
+	m_listFighters.get(p_fighterIndex).delBouclier();
     }
 
     /**
@@ -305,16 +335,7 @@ public class SessionManager
      */
     public String getCurrentWeaponName(int p_index)
     {
-	String result = "";
-	if (p_index >= 0)
-	{
-	    result = m_listFighters.get(p_index).getCurrentWeaponName();
-	}
-	else
-	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
-	}
-	return result;
+	return m_listFighters.get(p_index).getCurrentWeaponName();
     }
 
     /**
@@ -323,13 +344,13 @@ public class SessionManager
      */
     public void setTargetND(int p_index, int p_ND)
     {
-	if (p_index >= 0 && p_ND >= 0)
+	if (p_ND >= 0)
 	{
 	    m_listFighters.get(p_index).setTargetND(p_ND);
 	}
 	else
 	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index + " " + PropertiesHandler.getInstance("upmaster").getString("ND") + ":" + p_ND);
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getString("ND") + ":" + p_ND);
 	}
     }
 
@@ -339,16 +360,7 @@ public class SessionManager
      */
     public int getTargetND(int p_index)
     {
-	int result = 0;
-	if (p_index >= 0)
-	{
-	    result = m_listFighters.get(p_index).getTargetND();
-	}
-	else
-	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
-	}
-	return result;
+	return m_listFighters.get(p_index).getTargetND();
     }
 
     /**
@@ -360,16 +372,7 @@ public class SessionManager
      */
     public int getFighterND(int p_index, int p_weapType, boolean p_dodge)
     {
-	int result = 0;
-	if (p_index >= 0)
-	{
-	    result = m_listFighters.get(p_index).getFighterND(p_weapType, p_dodge);
-	}
-	else
-	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("commonutils").getString("indice") + ":" + p_index);
-	}
-	return result;
+	return m_listFighters.get(p_index).getFighterND(p_weapType, p_dodge);
     }
 
     /**
