@@ -7,6 +7,7 @@ package org.duckdns.spacedock.upengine.upmaster;
 
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
+import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
 import org.junit.Assert;
 import static org.junit.Assert.fail;
 import org.junit.Test;
@@ -56,19 +57,14 @@ public class SessionManagerTest
 	    Assert.assertEquals("paramétre aberrant:RM doit être compris entre 1 et 5 inclus", e.getMessage());
 	}
 
-	//test ND en esquive et sans, comme il n'y a pas d'armure cela ne devrait pas avoir d'effet
+	//test ND en esquive et sans
 	Assert.assertEquals(10, manager.getFighterND(fighter1, 0, false));
-	Assert.assertEquals(15, manager.getFighterND(fighter2, 2, true));//TODO tester avec de l'armure
+	Assert.assertEquals(15, manager.getFighterND(fighter2, 2, true));
+	manager.setPieceArmure(fighter2, 7, 0, 0, Inventaire.ZoneEmplacement.CORPS);//ajout d'une cuirasse pour modifier le ND notamment d'esquive
+	Assert.assertEquals(10, manager.getFighterND(fighter2, 2, true));
+	manager.delPieceArmure(fighter2, Inventaire.ZoneEmplacement.CORPS);
+
 	Assert.assertEquals(25, manager.getFighterND(fighter3, 3, false));
-	try
-	{
-	    manager.getFighterND(-1, -1, false);//le second -1 ne doit pas générer d'erreur car ça DOIT pêter avant
-	    fail();
-	}
-	catch (IllegalArgumentException e)
-	{
-	    Assert.assertEquals("paramétre aberrant:indice:-1", e.getMessage());
-	}
 
 	//test des libellés de persos
 	Assert.assertEquals("PersoRM1", manager.getName(fighter1));
@@ -97,50 +93,52 @@ public class SessionManagerTest
 	SessionManager manager = SessionManager.getInstance();
 	int fighter = manager.addFighter(3).getIndex();
 
-	//test sur l'ajout-retrait d'arme
+	//test sur l'ajout-retrait d'arme et de boucliers (notamment sur l'impossibilité d'avoir arme à deux mains et bouclier en même temps)
 	manager.setWeapon(fighter, 7, Arme.QualiteArme.superieure, Arme.EquilibrageArme.mauvais);
 	Assert.assertEquals("rapière de qualité supérieure et équilibrage mauvais", manager.getCurrentWeaponName(fighter));
+	manager.delWeapon(fighter);
+	Assert.assertEquals("mains nues", manager.getCurrentWeaponName(fighter));
+	manager.setWeapon(fighter, 14, Arme.QualiteArme.superieure, Arme.EquilibrageArme.mauvais);
+	Assert.assertEquals("épée à deux mains de qualité supérieure et équilibrage mauvais", manager.getCurrentWeaponName(fighter));
+	manager.setBouclier(fighter, 0, 0, 0);
+	Assert.assertEquals("mains nues", manager.getCurrentWeaponName(fighter));
+	Assert.assertEquals("targe en métal", manager.getBouclierName(fighter));
+	manager.setWeapon(fighter, 14, Arme.QualiteArme.superieure, Arme.EquilibrageArme.mauvais);
+	Assert.assertEquals("épée à deux mains de qualité supérieure et équilibrage mauvais", manager.getCurrentWeaponName(fighter));
+	Assert.assertEquals("aucun", manager.getBouclierName(fighter));
+	manager.setWeapon(fighter, 7, Arme.QualiteArme.superieure, Arme.EquilibrageArme.mauvais);
+	Assert.assertEquals("rapière de qualité supérieure et équilibrage mauvais", manager.getCurrentWeaponName(fighter));
+
+	//test sur l'ajout-retrait d'armure
+	manager.setPieceArmure(fighter, 0, 0, 0, Inventaire.ZoneEmplacement.TETE);
+	Assert.assertEquals("casque complet en plates", manager.getPieceArmureName(fighter, Inventaire.ZoneEmplacement.TETE));
+	manager.setPieceArmure(fighter, 7, 0, 0, Inventaire.ZoneEmplacement.CORPS);
+	Assert.assertEquals("cuirasse en plates", manager.getPieceArmureName(fighter, Inventaire.ZoneEmplacement.CORPS));
+	manager.setPieceArmure(fighter, 1, 0, 0, Inventaire.ZoneEmplacement.TETE);
+	Assert.assertEquals("casque ouvert en plates", manager.getPieceArmureName(fighter, Inventaire.ZoneEmplacement.TETE));
+	manager.delPieceArmure(fighter, Inventaire.ZoneEmplacement.CORPS);
+	Assert.assertEquals("aucun", manager.getPieceArmureName(fighter, Inventaire.ZoneEmplacement.CORPS));
+	manager.delPieceArmure(fighter, Inventaire.ZoneEmplacement.TETE);
+	Assert.assertEquals("aucun", manager.getPieceArmureName(fighter, Inventaire.ZoneEmplacement.TETE));
+
+	//cas d'erreur : ajout au mauvais emplacement
 	try
 	{
-	    manager.getCurrentWeaponName(-1);
+	    manager.setPieceArmure(fighter, 6, 0, 0, Inventaire.ZoneEmplacement.TETE);
 	    fail();
 	}
-	catch (IllegalArgumentException e)
+	catch (IllegalStateException e)
 	{
-	    Assert.assertEquals("paramétre aberrant:indice:-1", e.getMessage());
-	}
-	try
-	{
-	    manager.setWeapon(-1, -1, Arme.QualiteArme.maitre, Arme.EquilibrageArme.bon);//le second -1 ne doit pas générer d'erreur car ça DOIT pêter avant
-	    fail();
-	}
-	catch (IllegalArgumentException e)
-	{
-	    Assert.assertEquals("paramétre aberrant:indice:-1", e.getMessage());
+	    Assert.assertEquals("emploi de la mauvaise méthode dans ce contexte:localisation incorrecte", e.getMessage());
 	}
 
 	//test sur le ND cible
 	manager.setTargetND(fighter, 23);
 	Assert.assertEquals(23, manager.getTargetND(fighter));
-	try
-	{
-	    manager.getTargetND(-1);
-	    fail();
-	}
-	catch (IllegalArgumentException e)
-	{
-	    Assert.assertEquals("paramétre aberrant:indice:-1", e.getMessage());
-	}
+
 	manager.setTargetND(fighter, 0);
-	try
-	{
-	    manager.setTargetND(-1, 56);
-	    fail();
-	}
-	catch (IllegalArgumentException e)
-	{
-	    Assert.assertEquals("paramétre aberrant:indice:-1 ND:56", e.getMessage());
-	}
+	Assert.assertEquals(0, manager.getTargetND(fighter));
+
 	try
 	{
 	    manager.setTargetND(fighter, -56);
@@ -148,22 +146,13 @@ public class SessionManagerTest
 	}
 	catch (IllegalArgumentException e)
 	{
-	    Assert.assertEquals("paramétre aberrant:indice:" + fighter + " ND:-56", e.getMessage());
+	    Assert.assertEquals("paramétre aberrant:ND:-56", e.getMessage());
 	}
 
 	//test succinct sur les blessures
 	SessionManager.HealthReport report = manager.hurt(fighter, new Degats(1000, 4));
 	Assert.assertEquals(true, report.isOut());
 	Assert.assertEquals(true, report.isStunned());
-	try
-	{
-	    manager.hurt(-1, null);//ca doit pêter avant qu'il n'y ait le NullPointerException
-	    fail();
-	}
-	catch (IllegalArgumentException e)
-	{
-	    Assert.assertEquals("paramétre aberrant:indice:-1", e.getMessage());
-	}
     }
 
     @Test

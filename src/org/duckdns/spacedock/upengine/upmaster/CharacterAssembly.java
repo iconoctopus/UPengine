@@ -135,7 +135,14 @@ class CharacterAssembly
      */
     String getPieceArmureName(Inventaire.ZoneEmplacement p_zone)
     {
-	return m_perso.getInventaire().getPieceArmure(p_zone).toString();
+	Inventaire inventaire = m_perso.getInventaire();
+	String res = PropertiesHandler.getInstance("upmaster").getString("aucun");
+	PieceArmure piece = inventaire.getPieceArmure(p_zone);
+	if (piece != null)
+	{
+	    res = piece.toString();
+	}
+	return res;
     }
 
     /**
@@ -153,7 +160,6 @@ class CharacterAssembly
 	{
 	    inventaire.removePieceArmure(p_zone);
 	}
-
 	inventaire.addPieceArmure(new PieceArmure(p_index, p_materiau, p_type, false), p_zone);
     }
 
