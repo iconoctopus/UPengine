@@ -14,7 +14,7 @@ import org.junit.Test;
 
 /**
  *
- * @author iconoctopus
+ * @author ykonoclast
  */
 public class SessionManagerTest
 {

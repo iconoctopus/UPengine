@@ -13,7 +13,7 @@ import org.duckdns.spacedock.upengine.libupsystem.UPReference;
 import org.duckdns.spacedock.upengine.upmaster.SessionManager.AttackReport;
 
 /**
- * Created by iconoctopus on 6/6/16. Cette classe représente un personnage et
+ * Created by ykonoclast on 6/6/16. Cette classe représente un personnage et
  * l'environnement avec lequel il interragit (notamment le ND de sa cible) c'est
  * utile pour ne pas avoir à gérer plusieurs listes (les persos et leurs cibles)
  * avec risque de décorrélation. Un autre but est d'encapsuler les évolutions de

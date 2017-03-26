@@ -19,7 +19,7 @@ import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
  * Contrôleur gérant la session à la fois comme singleton de configuration mais
  * aussi avec des méthodes de contrôle
  *
- * @author iconoctopus
+ * @author ykonoclast
  */
 public class SessionManager
 {
