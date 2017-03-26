@@ -16,8 +16,8 @@ import org.junit.Test;
  *
  * @author ykonoclast
  */
-public class SessionManagerTest
-{
+public class IntegTest
+{//TODO tests d'intégration : faire regénérer init du perso et faire un tour de combat "à blanc"
 
     @Test
     public void testFighterAddDel()
