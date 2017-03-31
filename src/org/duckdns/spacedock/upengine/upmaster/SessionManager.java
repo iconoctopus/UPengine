@@ -237,7 +237,7 @@ public class SessionManager
      */
     public String getName(int p_index)
     {
-	return m_listFighters.get(p_index).getLibellePerso();
+	return m_listFighters.get(p_index).getCharName();
     }
 
     /**
@@ -272,7 +272,7 @@ public class SessionManager
      */
     public String getPieceArmureName(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
     {
-	return m_listFighters.get(p_fighterIndex).getPieceArmureName(p_zone);
+	return m_listFighters.get(p_fighterIndex).getArmourPartName(p_zone);
     }
 
     /**
@@ -285,7 +285,7 @@ public class SessionManager
      */
     public void setPieceArmure(int p_fighterIndex, int p_index, int p_materiau, int p_type, Inventaire.ZoneEmplacement p_zone)
     {
-	m_listFighters.get(p_fighterIndex).setPieceArmure(p_index, p_materiau, p_type, p_zone);
+	m_listFighters.get(p_fighterIndex).setArmourPart(p_index, p_materiau, p_type, p_zone);
     }
 
     /**
@@ -295,7 +295,7 @@ public class SessionManager
      */
     public void delPieceArmure(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
     {
-	m_listFighters.get(p_fighterIndex).delPieceArmure(p_zone);
+	m_listFighters.get(p_fighterIndex).delArmourPart(p_zone);
     }
 
     /**
@@ -305,7 +305,7 @@ public class SessionManager
      */
     public String getBouclierName(int p_fighterIndex)
     {
-	return m_listFighters.get(p_fighterIndex).getBouclierName();
+	return m_listFighters.get(p_fighterIndex).getShieldName();
     }
 
     /**
@@ -317,7 +317,7 @@ public class SessionManager
      */
     public void setBouclier(int p_fighterIndex, int p_index, int p_materiau, int p_type)
     {
-	m_listFighters.get(p_fighterIndex).setBouclier(p_index, p_materiau, p_type);
+	m_listFighters.get(p_fighterIndex).setShield(p_index, p_materiau, p_type);
     }
 
     /**
@@ -326,7 +326,7 @@ public class SessionManager
      */
     public void delBouclier(int p_fighterIndex)
     {
-	m_listFighters.get(p_fighterIndex).delBouclier();
+	m_listFighters.get(p_fighterIndex).delShield();
     }
 
     /**
@@ -346,7 +346,7 @@ public class SessionManager
     {
 	if (p_ND >= 0)
 	{
-	    m_listFighters.get(p_index).setTargetND(p_ND);
+	    m_listFighters.get(p_index).setTargetDefense(p_ND);
 	}
 	else
 	{
@@ -360,7 +360,7 @@ public class SessionManager
      */
     public int getTargetND(int p_index)
     {
-	return m_listFighters.get(p_index).getTargetND();
+	return m_listFighters.get(p_index).getTargetDefense();
     }
 
     /**
@@ -372,7 +372,18 @@ public class SessionManager
      */
     public int getFighterND(int p_index, int p_weapType, boolean p_dodge)
     {
-	return m_listFighters.get(p_index).getFighterND(p_weapType, p_dodge);
+	return m_listFighters.get(p_index).getFighterDefense(p_weapType, p_dodge);
+    }
+
+    /**
+     *
+     * @param p_index
+     * @return les actions dans le tour en cours du combattant paramétré par
+     * l'indice
+     */
+    public ArrayList<Integer> getFighterActions(int p_index)
+    {
+	return m_listFighters.get(p_index).getActions();
     }
 
     /**

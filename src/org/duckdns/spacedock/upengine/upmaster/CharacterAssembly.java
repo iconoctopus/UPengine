@@ -1,5 +1,6 @@
 package org.duckdns.spacedock.upengine.upmaster;
 
+import java.util.ArrayList;
 import org.duckdns.spacedock.commonutils.PropertiesHandler;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
@@ -29,7 +30,7 @@ class CharacterAssembly
     /**
      * ND de la cible courante
      */
-    private int m_targetND;
+    private int m_targetDefense;
 
     /**
      * constructeur avec ND cible de 25 par défaut
@@ -50,15 +51,25 @@ class CharacterAssembly
     CharacterAssembly(int p_rm, int p_ND)
     {
 	m_perso = new Perso(p_rm);
-	m_targetND = p_ND;
+	m_targetDefense = p_ND;
     }
 
     /**
      * @return le nom du perso tel que connu par le Perso UP!System
      */
-    String getLibellePerso()
+    String getCharName()
     {
 	return m_perso.toString();
+    }
+
+    /**
+     *
+     * @param p_name
+     * @return
+     */
+    void setCharName(String p_name)
+    {
+	m_perso.setLibellePerso(p_name);
     }
 
     /**
@@ -84,7 +95,7 @@ class CharacterAssembly
 	    arme = new ArmeDist(p_index, p_quality, p_balance);
 	}
 
-	if (arme.getNbMainsArme() == 2)
+	if (arme.getNbMainsArme() > 1)
 	{
 	    if (inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE) != null)//TODO le bouclier est forcément à gauche pour l'instant
 	    {
@@ -113,13 +124,13 @@ class CharacterAssembly
 
     /**
      *
-     * @return le nom de l'arme actuellement brandie
+     * @return le nom de l'arme actuellement brandie (mains nues si rien)
      */
     String getCurrentWeaponName()
     {
 	Arme currentWeapon = m_perso.getInventaire().getArmeCourante();
 
-	String weapName = UPReference.getInstance().getLblCatArmeCaC(0);
+	String weapName = UPReference.getInstance().getLblCatArmeCaC(0);//on renvoie mains nues par défaut
 	if (currentWeapon != null)
 	{
 	    weapName = currentWeapon.toString();
@@ -133,7 +144,7 @@ class CharacterAssembly
      * @param p_zone
      * @return
      */
-    String getPieceArmureName(Inventaire.ZoneEmplacement p_zone)
+    String getArmourPartName(Inventaire.ZoneEmplacement p_zone)
     {
 	Inventaire inventaire = m_perso.getInventaire();
 	String res = PropertiesHandler.getInstance("upmaster").getString("aucun");
@@ -153,14 +164,14 @@ class CharacterAssembly
      * @param p_zone
      * @return
      */
-    void setPieceArmure(int p_index, int p_materiau, int p_type, Inventaire.ZoneEmplacement p_zone)
+    void setArmourPart(int p_index, int p_material, int p_type, Inventaire.ZoneEmplacement p_zone)
     {
 	Inventaire inventaire = m_perso.getInventaire();
 	if (inventaire.getPieceArmure(p_zone) != null)
 	{
 	    inventaire.removePieceArmure(p_zone);
 	}
-	inventaire.addPieceArmure(new PieceArmure(p_index, p_materiau, p_type, false), p_zone);
+	inventaire.addPieceArmure(new PieceArmure(p_index, p_material, p_type, false), p_zone);
     }
 
     /**
@@ -168,7 +179,7 @@ class CharacterAssembly
      *
      * @param p_zone
      */
-    void delPieceArmure(Inventaire.ZoneEmplacement p_zone)
+    void delArmourPart(Inventaire.ZoneEmplacement p_zone)
     {
 	Inventaire inventaire = m_perso.getInventaire();
 	if (inventaire.getPieceArmure(p_zone) != null)
@@ -182,7 +193,7 @@ class CharacterAssembly
      *
      * @return
      */
-    String getBouclierName()
+    String getShieldName()
     {//TODO en l'absence de localisation le bouclier est pour l'instant forcément à gauche
 	Inventaire inventaire = m_perso.getInventaire();
 	String res = PropertiesHandler.getInstance("upmaster").getString("aucun");
@@ -202,7 +213,7 @@ class CharacterAssembly
      * @param p_materiau
      * @param p_type
      */
-    void setBouclier(int p_index, int p_materiau, int p_type)
+    void setShield(int p_index, int p_materiau, int p_type)
     {
 	Inventaire inventaire = m_perso.getInventaire();
 	Arme armeCourante = inventaire.getArmeCourante();
@@ -220,7 +231,7 @@ class CharacterAssembly
      * supprime le bouclier porté, résiste aux erreurs : si aucun bouclier, il
      * ne se passe juste rien
      */
-    void delBouclier()
+    void delShield()
     {
 	Inventaire inventaire = m_perso.getInventaire();
 	if (inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE) != null)//TODO le bouclier est forcément à gauche
@@ -232,26 +243,26 @@ class CharacterAssembly
     /**
      * configure le ND de la cible
      *
-     * @param p_ND
+     * @param p_Defense
      */
-    void setTargetND(int p_ND)
+    void setTargetDefense(int p_Defense)
     {
-	m_targetND = p_ND;
+	m_targetDefense = p_Defense;
     }
 
     /**
      * @return le ND de la cible actuelle
      */
-    int getTargetND()
+    int getTargetDefense()
     {
-	return (m_targetND);
+	return (m_targetDefense);
     }
 
     /**
      *
      * @return le ND propre du combattant
      */
-    int getFighterND(int p_weapType, boolean p_dodge)
+    int getFighterDefense(int p_weapType, boolean p_dodge)
     {
 	Arme currentWeapon = m_perso.getInventaire().getArmeCourante();
 	int weapCategory = 0;
@@ -276,11 +287,20 @@ class CharacterAssembly
 
     /**
      *
+     * @return les actions du personnages dans le tour en cours
+     */
+    ArrayList<Integer> getActions()
+    {
+	return m_perso.getActions();
+    }
+
+    /**
+     *
      * @return si le personnage doit être éliminé
      */
     boolean isOut()
     {
-	return m_perso.isInconscient();//dans cette version seule l'inconscience vaut élimination
+	return m_perso.isInconscient() || m_perso.isElimine();//dans cette version l'inconscience vaut éliination
     }
 
     /**
@@ -317,10 +337,10 @@ class CharacterAssembly
      * l'action est possible
      * @return les dégâts infligés
      */
-    AttackReport attack(int p_currentPhase)
+    AttackReport attack(int p_currentPhase)//TODO pour l'instant ne gère que les armes de corps à corps
     {
 	Degats finalResult = new Degats(0, 0);
-	RollResult technicalResult = m_perso.attaquerCaC(p_currentPhase, m_targetND);
+	RollResult technicalResult = m_perso.attaquerCaC(p_currentPhase, m_targetDefense);
 
 	if (technicalResult.isJetReussi())//extraction des dégâts
 	{

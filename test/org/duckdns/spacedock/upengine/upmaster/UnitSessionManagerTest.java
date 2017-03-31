@@ -103,6 +103,12 @@ public class UnitSessionManagerTest
     }
 
     @Test
+    public void testGetActions()
+    {
+	//getFighterActions(p_index)
+    }
+
+    @Test
     public void testArmure()
     {
 
