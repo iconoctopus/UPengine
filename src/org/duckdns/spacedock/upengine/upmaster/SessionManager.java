@@ -99,7 +99,7 @@ public class SessionManager
     {
 	int newIndex = 0;
 	boolean isActive = false;
-	if (p_rm > 0 && p_rm < 6)
+	if (p_rm > 0)
 	{
 	    CharacterAssembly newFighter;
 	    if (m_indexIterator.hasNext())//il y a eu des libérations on renvoie donc la première case libre
@@ -191,7 +191,7 @@ public class SessionManager
      * si l'attaque est un succès et un booléen indiquant si le combattant reste
      * actif après attaque
      */
-    public AttackReport attack(int p_index)
+    public AttackReport makeFighterAttack(int p_index)
     {
 	AttackReport result = new AttackReport(new Degats(0, 0), true, true);
 
@@ -199,7 +199,7 @@ public class SessionManager
 	if (attacker.isActive(m_currentPhase))
 	{
 	    result = attacker.attack(m_currentPhase);
-	    if (!result.isStillAtive())//si le combattant n'est plus actif on le retire de la liste de combattans actifs
+	    if (!result.isStillActive())//si le combattant n'est plus actif on le retire de la liste de combattans actifs
 	    {
 		m_listActiveFighters.remove(Integer.valueOf(p_index));
 		m_activeFightersIterator = m_listActiveFighters.listIterator();
@@ -221,7 +221,7 @@ public class SessionManager
      * @return une structure contenant le nombres de blessures légères et graves
      * ainsi que le statut sonné/inconscient du personnage
      */
-    public HealthReport hurt(int p_index, Degats p_damage)
+    public HealthReport hurtFighter(int p_index, Degats p_damage)
     {
 	CharacterAssembly victim = m_listFighters.get(p_index);
 	victim.hurt(p_damage);
@@ -235,9 +235,14 @@ public class SessionManager
      * @param p_index son indice dans les listes
      * @return la chaine représentant son nom, issue de la couche libupsystem
      */
-    public String getName(int p_index)
+    public String getFighterName(int p_index)
     {
 	return m_listFighters.get(p_index).getCharName();
+    }
+
+    public void setFighterName(int p_index, String p_name)
+    {
+	m_listFighters.get(p_index).setCharName(p_name);
     }
 
     /**
@@ -249,7 +254,7 @@ public class SessionManager
      * @param p_quality
      * @param p_balance
      */
-    public void setWeapon(int p_index, int p_weaponId, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)
+    public void setFighterWeapon(int p_index, int p_weaponId, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)
     {
 	m_listFighters.get(p_index).setCurrentWeapon(p_weaponId, p_quality, p_balance);
     }
@@ -259,7 +264,7 @@ public class SessionManager
      *
      * @param p_index
      */
-    public void delWeapon(int p_index)
+    public void delFighterWeapon(int p_index)
     {
 	m_listFighters.get(p_index).delWeapon();
     }
@@ -270,7 +275,7 @@ public class SessionManager
      * @param p_zone
      * @return
      */
-    public String getPieceArmureName(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
+    public String getFighterArmourPartName(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
     {
 	return m_listFighters.get(p_fighterIndex).getArmourPartName(p_zone);
     }
@@ -283,7 +288,7 @@ public class SessionManager
      * @param p_type
      * @param p_zone
      */
-    public void setPieceArmure(int p_fighterIndex, int p_index, int p_materiau, int p_type, Inventaire.ZoneEmplacement p_zone)
+    public void setFighterArmourPart(int p_fighterIndex, int p_index, int p_materiau, int p_type, Inventaire.ZoneEmplacement p_zone)
     {
 	m_listFighters.get(p_fighterIndex).setArmourPart(p_index, p_materiau, p_type, p_zone);
     }
@@ -293,7 +298,7 @@ public class SessionManager
      * @param p_fighterIndex
      * @param p_zone
      */
-    public void delPieceArmure(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
+    public void delFighterArmourPart(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
     {
 	m_listFighters.get(p_fighterIndex).delArmourPart(p_zone);
     }
@@ -303,7 +308,7 @@ public class SessionManager
      * @param p_fighterIndex
      * @return
      */
-    public String getBouclierName(int p_fighterIndex)
+    public String getFighterShieldName(int p_fighterIndex)
     {
 	return m_listFighters.get(p_fighterIndex).getShieldName();
     }
@@ -315,7 +320,7 @@ public class SessionManager
      * @param p_materiau
      * @param p_type
      */
-    public void setBouclier(int p_fighterIndex, int p_index, int p_materiau, int p_type)
+    public void setFighterShield(int p_fighterIndex, int p_index, int p_materiau, int p_type)
     {
 	m_listFighters.get(p_fighterIndex).setShield(p_index, p_materiau, p_type);
     }
@@ -324,7 +329,7 @@ public class SessionManager
      *
      * @param p_fighterIndex
      */
-    public void delBouclier(int p_fighterIndex)
+    public void delFighterShield(int p_fighterIndex)
     {
 	m_listFighters.get(p_fighterIndex).delShield();
     }
@@ -333,7 +338,7 @@ public class SessionManager
      * @param p_index indice du combattant
      * @return le nom de l'arme portée par le combattant visé
      */
-    public String getCurrentWeaponName(int p_index)
+    public String getFighterCurrentWeaponName(int p_index)
     {
 	return m_listFighters.get(p_index).getCurrentWeaponName();
     }
@@ -342,15 +347,15 @@ public class SessionManager
      * @param p_index indice du combattant
      * @param p_ND le ND de la cible
      */
-    public void setTargetND(int p_index, int p_ND)
+    public void setFighterTargetDefence(int p_index, int p_ND)
     {
 	if (p_ND >= 0)
 	{
-	    m_listFighters.get(p_index).setTargetDefense(p_ND);
+	    m_listFighters.get(p_index).setTargetDefence(p_ND);
 	}
 	else
 	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getString("ND") + ":" + p_ND);
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getString("défense") + ":" + p_ND);
 	}
     }
 
@@ -358,9 +363,9 @@ public class SessionManager
      * @param p_index indice du combattant
      * @return le ND de la cible
      */
-    public int getTargetND(int p_index)
+    public int getFighterTargetDefence(int p_index)
     {
-	return m_listFighters.get(p_index).getTargetDefense();
+	return m_listFighters.get(p_index).getTargetDefence();
     }
 
     /**
@@ -370,20 +375,9 @@ public class SessionManager
      * @param p_dodge
      * @return
      */
-    public int getFighterND(int p_index, int p_weapType, boolean p_dodge)
+    public int getFighterDefence(int p_index, int p_weapType, boolean p_dodge)
     {
 	return m_listFighters.get(p_index).getFighterDefense(p_weapType, p_dodge);
-    }
-
-    /**
-     *
-     * @param p_index
-     * @return les actions dans le tour en cours du combattant paramétré par
-     * l'indice
-     */
-    public ArrayList<Integer> getFighterActions(int p_index)
-    {
-	return m_listFighters.get(p_index).getActions();
     }
 
     /**
@@ -465,7 +459,7 @@ public class SessionManager
 	    return m_assessment;
 	}
 
-	public boolean isStillAtive()
+	public boolean isStillActive()
 	{
 	    return m_stillActive;
 	}

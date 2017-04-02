@@ -245,7 +245,7 @@ class CharacterAssembly
      *
      * @param p_Defense
      */
-    void setTargetDefense(int p_Defense)
+    void setTargetDefence(int p_Defense)
     {
 	m_targetDefense = p_Defense;
     }
@@ -253,7 +253,7 @@ class CharacterAssembly
     /**
      * @return le ND de la cible actuelle
      */
-    int getTargetDefense()
+    int getTargetDefence()
     {
 	return (m_targetDefense);
     }

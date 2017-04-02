@@ -73,7 +73,6 @@ public class UnitCharacterAssemblyTest
 	when(pieceMock2.toString()).thenReturn("piece mock 2");
 
 	assemblyTest = new CharacterAssembly(3);
-	//mock : perso(tostring, setlibelle), inventaire(getbouclier,), arme CaC et Dist(nbmains), UPReference(getModArme)
     }
 
     @Test
@@ -179,14 +178,14 @@ public class UnitCharacterAssemblyTest
     public void testTarget()
     {
 	//le constructeur appelé juste avec un RM va appeler l'autre en lui passant 25 par défaut
-	Assert.assertEquals(25, assemblyTest.getTargetDefense());
+	Assert.assertEquals(25, assemblyTest.getTargetDefence());
 
 	//on modifie le ND cible et on vérifie
-	assemblyTest.setTargetDefense(37);
-	Assert.assertEquals(37, assemblyTest.getTargetDefense());
+	assemblyTest.setTargetDefence(37);
+	Assert.assertEquals(37, assemblyTest.getTargetDefence());
 
 	//on remet à 25 pour les autres tests
-	assemblyTest.setTargetDefense(25);
+	assemblyTest.setTargetDefence(25);
     }
 
     @Test
@@ -219,7 +218,6 @@ public class UnitCharacterAssemblyTest
 
     @Test
     public void testAttaque() throws Exception
-
     {
 	//Cas d'échec
 	RollUtils.RollResult rollResultMock = PowerMockito.mock(RollResult.class);
@@ -234,7 +232,7 @@ public class UnitCharacterAssemblyTest
 	verify(persoMock).attaquerCaC(0, 25);
 	assertFalse(result.assess());
 	assertEquals(degatMock, result.getDamage());
-	assertTrue(result.isStillAtive());
+	assertTrue(result.isStillActive());
 
 	//cas de réussite
 	when(rollResultMock.isJetReussi()).thenReturn(true);
@@ -245,7 +243,7 @@ public class UnitCharacterAssemblyTest
 	verify(persoMock).genererDegats(2);
 	assertTrue(result.assess());
 	assertEquals(degatMock, result.getDamage());
-	assertTrue(result.isStillAtive());
+	assertTrue(result.isStillActive());
     }
 
     @Test
@@ -255,7 +253,5 @@ public class UnitCharacterAssemblyTest
 	Degats degatMock = PowerMockito.mock(Degats.class);
 	assemblyTest.hurt(degatMock);
 	verify(persoMock).etreBlesse(degatMock);
-
     }
-
 }
