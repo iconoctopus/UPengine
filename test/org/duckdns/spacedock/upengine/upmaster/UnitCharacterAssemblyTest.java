@@ -5,16 +5,18 @@
  */
 package org.duckdns.spacedock.upengine.upmaster;
 
+import java.util.ArrayList;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
-import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeCaC;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeDist;
+import org.duckdns.spacedock.upengine.libupsystem.Bouclier;
 import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
+import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.PieceArmure;
 import org.duckdns.spacedock.upengine.libupsystem.RollUtils;
 import org.duckdns.spacedock.upengine.libupsystem.RollUtils.RollResult;
-import org.duckdns.spacedock.upengine.libupsystem.UPReference;
+import org.duckdns.spacedock.upengine.libupsystem.UPReferenceArmes;
 import org.duckdns.spacedock.upengine.upmaster.SessionManager.AttackReport;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
@@ -37,17 +39,17 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * @author ykonoclast
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(//pour les méthodes statiques c'est la classe appelante qui doit apparaître ici, pour les classes final c'est la classe appelée (donc UPReferenceSysteme n'apparaît ici que pour son caractère final et pas pour sa méthode getInstance()
+@PrepareForTest(//pour les méthodes statiques c'est la classe appelante qui doit apparaître ici, pour les classes final c'est la classe appelée (donc UPReferenceArmesSysteme n'apparaît ici que pour son caractère final et pas pour sa méthode getInstance()
 
 	{//les classes final, appelant du statique et les classes subissant un whennew
-	    Perso.class, CharacterAssembly.class, UPReference.class, RollResult.class, Inventaire.class, Degats.class
+	    Perso.class, CharacterAssembly.class, UPReferenceArmes.class, RollResult.class, Inventaire.class, Degats.class, Bouclier.class, PieceArmure.class
 	})
 public class UnitCharacterAssemblyTest
 {
 
     private Perso persoMock;
     private Inventaire inventaireMock;
-    private UPReference referenceMock;
+    private UPReferenceArmes referenceMock;
     private CharacterAssembly assemblyTest;
     private PieceArmure pieceMock1;
     private PieceArmure pieceMock2;
@@ -62,9 +64,9 @@ public class UnitCharacterAssemblyTest
 	inventaireMock = PowerMockito.mock(Inventaire.class);
 	when(persoMock.getInventaire()).thenReturn(inventaireMock);//on retourne le mock d'inventaire quand demandé
 
-	referenceMock = PowerMockito.mock(UPReference.class);
-	PowerMockito.mockStatic(UPReference.class);//nécessaire quand on mocke une classe statique
-	when(UPReference.getInstance()).thenReturn(referenceMock);
+	referenceMock = PowerMockito.mock(UPReferenceArmes.class);
+	PowerMockito.mockStatic(UPReferenceArmes.class);//nécessaire quand on mocke une classe statique
+	when(UPReferenceArmes.getInstance()).thenReturn(referenceMock);
 
 	pieceMock1 = PowerMockito.mock(PieceArmure.class);
 	pieceMock2 = PowerMockito.mock(PieceArmure.class);
@@ -91,26 +93,28 @@ public class UnitCharacterAssemblyTest
     {//TODO séparer cette méthode en plusieurs cas de test, probablement trop complexe à maintenir en l'état
 
 	//pas d'arme : la méthode renvoie le libellé de mains nues
-	when(referenceMock.getLblCatArmeCaC(0)).thenReturn("reponse mains nues");
+	ArrayList<String> listPourrie = new ArrayList<>();
+	listPourrie.add("reponse mains nues");
+	when(referenceMock.getListCatArmeCaC()).thenReturn(listPourrie);
 
 	Assert.assertEquals("reponse mains nues", assemblyTest.getCurrentWeaponName());//on a correctement réagi à l'absence d'arme courante
 	verify(persoMock).getInventaire();//appel pour récupérer l'inventaire
 	verify(inventaireMock).getArmeCourante();//appel pour vérifier quelle est l'arme courante
-	verify(referenceMock).getLblCatArmeCaC(0);//appel pour vérifier le nom de la cat d'arme mains nues
+	verify(referenceMock).getListCatArmeCaC();//appel pour vérifier le nom de la cat d'arme mains nues
 
 	//création de mocks pour les armes qui vont être ajoutées : les objets sont créés par la méthode setCurrentWeapon et donc leurs constructeurs et méthodes doivent être interceptés ici
 	ArmeCaC arme1mainMock = PowerMockito.mock(ArmeCaC.class);
 	whenNew(ArmeCaC.class).withArguments(3, Arme.QualiteArme.maitre, Arme.EquilibrageArme.bon).thenReturn(arme1mainMock);
-	when(arme1mainMock.getNbMainsArme()).thenReturn(1);
+	when(arme1mainMock.isArme2Mains()).thenReturn(false);
 	ArmeCaC arme2mainsMock = PowerMockito.mock(ArmeCaC.class);
 	whenNew(ArmeCaC.class).withArguments(77, Arme.QualiteArme.inferieure, Arme.EquilibrageArme.mauvais).thenReturn(arme2mainsMock);
-	when(arme2mainsMock.getNbMainsArme()).thenReturn(2);
+	when(arme2mainsMock.isArme2Mains()).thenReturn(true);
 	ArmeDist armeDistMock = PowerMockito.mock(ArmeDist.class);
 	whenNew(ArmeDist.class).withArguments(2, Arme.QualiteArme.superieure, Arme.EquilibrageArme.normal).thenReturn(armeDistMock);
 
 	//Ajout d'une arme de corp à corps
 	assemblyTest.setCurrentWeapon(3, Arme.QualiteArme.maitre, Arme.EquilibrageArme.bon);
-	verify(arme1mainMock).getNbMainsArme();//l'assembly regarde le nombre de mains
+	verify(arme1mainMock).isArme2Mains();//l'assembly regarde le nombre de mains
 	verify(inventaireMock, never()).getBouclier(Inventaire.Lateralisation.GAUCHE);//on ne regarde pas le bouclier car l'arme est à une main
 	verify(inventaireMock, never()).removeBouclier(Inventaire.Lateralisation.GAUCHE);//on ne le retire pas non plus
 	verify(inventaireMock).addArme(arme1mainMock, Inventaire.Lateralisation.DROITE);//test du set
@@ -122,11 +126,11 @@ public class UnitCharacterAssemblyTest
 	Assert.assertEquals("aucun", assemblyTest.getShieldName());//exception aux tests unitaires, on interroge directement le propertiesHandler
 
 	//ajout d'un bouclier, l'arme est toujours là
-	PieceArmure bouclierMock = PowerMockito.mock(PieceArmure.class);
-	whenNew(PieceArmure.class).withArguments(0, 0, 0, true).thenReturn(bouclierMock);
+	Bouclier bouclierMock = PowerMockito.mock(Bouclier.class);
+	whenNew(Bouclier.class).withArguments(0, 0).thenReturn(bouclierMock);
 	when(bouclierMock.toString()).thenReturn("bouclier mock");
 
-	assemblyTest.setShield(0, 0, 0);
+	assemblyTest.setShield(0, 0);
 	verify(inventaireMock, never()).removeArme(Inventaire.Lateralisation.DROITE);//pas besoin d'aller retirer le bouclier
 	verify(inventaireMock).addBouclier(bouclierMock, Inventaire.Lateralisation.GAUCHE);//le bouclier est bien ajouté
 
@@ -143,7 +147,7 @@ public class UnitCharacterAssemblyTest
 
 	//rajout d'un bouclier : l'arme à deux mains est retirée
 	when(inventaireMock.getArmeCourante()).thenReturn(arme2mainsMock);
-	assemblyTest.setShield(0, 0, 0);
+	assemblyTest.setShield(0, 0);
 	verify(inventaireMock, times(2)).removeArme(Inventaire.Lateralisation.DROITE);
 
 	//retrait volontaire du bouclier
@@ -155,10 +159,10 @@ public class UnitCharacterAssemblyTest
     public void testArmourPart() throws Exception
     {
 	//pour tous les emplacements initiaux cela doit répondre que la zone est vide sauf pour un où l'on place une pièce d'armure
-	when(inventaireMock.getPieceArmure(Inventaire.ZoneEmplacement.TETE)).thenReturn(pieceMock1);
-	for (Inventaire.ZoneEmplacement z : Inventaire.ZoneEmplacement.values())
+	when(inventaireMock.getPieceArmure(Inventaire.PartieCorps.TETE)).thenReturn(pieceMock1);
+	for (Inventaire.PartieCorps z : Inventaire.PartieCorps.values())
 	{
-	    if (z == Inventaire.ZoneEmplacement.TETE)
+	    if (z == Inventaire.PartieCorps.TETE)
 	    {
 		Assert.assertEquals("piece mock 1", assemblyTest.getArmourPartName(z));
 	    }
@@ -168,10 +172,10 @@ public class UnitCharacterAssemblyTest
 	    }
 	}
 	//Placer une piece là où il y en a déjà une ne pose pas de problème et enlève la précédente
-	whenNew(PieceArmure.class).withArguments(0, 0, 0, false).thenReturn(pieceMock2);
-	assemblyTest.setArmourPart(0, 0, 0, Inventaire.ZoneEmplacement.TETE);
-	verify(inventaireMock).removePieceArmure(Inventaire.ZoneEmplacement.TETE);
-	verify(inventaireMock).addPieceArmure(pieceMock2, Inventaire.ZoneEmplacement.TETE);
+	whenNew(PieceArmure.class).withArguments(0, 0, 0).thenReturn(pieceMock2);
+	assemblyTest.setArmourPart(0, 0, 0, Inventaire.PartieCorps.TETE);
+	verify(inventaireMock).removePieceArmure(Inventaire.PartieCorps.TETE);
+	verify(inventaireMock).addPieceArmure(pieceMock2, Inventaire.PartieCorps.TETE);
     }
 
     @Test
@@ -202,18 +206,8 @@ public class UnitCharacterAssemblyTest
     public void testEtat()
     {
 	//simple verif des bons appels
-	assemblyTest.isOut();
-	verify(persoMock).isElimine();
-	verify(persoMock).isInconscient();
-
-	assemblyTest.isStunned();
-	verify(persoMock).isSonne();
-
-	assemblyTest.getNbFleshWounds();
-	verify(persoMock).getBlessuresLegeres();
-
-	assemblyTest.getNbDramaWounds();
-	verify(persoMock).getBlessuresGraves();
+	assemblyTest.getEtatVital();
+	verify(persoMock).getEtatVital();
     }
 
     @Test
@@ -221,7 +215,7 @@ public class UnitCharacterAssemblyTest
     {
 	//Cas d'échec
 	RollUtils.RollResult rollResultMock = PowerMockito.mock(RollResult.class);
-	Arme.Degats degatMock = PowerMockito.mock(Degats.class);
+	Perso.Degats degatMock = PowerMockito.mock(Degats.class);
 	whenNew(Degats.class).withArguments(0, 0).thenReturn(degatMock);
 	when(rollResultMock.isJetReussi()).thenReturn(false);
 	when(persoMock.attaquerCaC(0, 25)).thenReturn(rollResultMock);
@@ -248,7 +242,6 @@ public class UnitCharacterAssemblyTest
 
     @Test
     public void testDegats()
-
     {
 	Degats degatMock = PowerMockito.mock(Degats.class);
 	assemblyTest.hurt(degatMock);

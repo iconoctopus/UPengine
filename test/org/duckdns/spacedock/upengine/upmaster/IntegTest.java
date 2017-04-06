@@ -6,8 +6,10 @@
 package org.duckdns.spacedock.upengine.upmaster;
 
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
-import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
+import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges;
+
 import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
+import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 import org.junit.Assert;
 import static org.junit.Assert.fail;
 import org.junit.Test;
@@ -28,13 +30,13 @@ public class IntegTest
 	int fighter3 = manager.addFighter(3).getIndex();
 
 	//test ND en esquive et sans
-	Assert.assertEquals(10, manager.getFighterDefence(fighter1, 0, false));
-	Assert.assertEquals(15, manager.getFighterDefence(fighter2, 2, true));
-	manager.setFighterArmourPart(fighter2, 7, 0, 0, Inventaire.ZoneEmplacement.CORPS);//ajout d'une cuirasse pour modifier le ND notamment d'esquive
-	Assert.assertEquals(10, manager.getFighterDefence(fighter2, 2, true));
-	manager.delFighterArmourPart(fighter2, Inventaire.ZoneEmplacement.CORPS);
+	Assert.assertEquals(15, manager.getFighterDefence(fighter1, 0));
+	Assert.assertEquals(20, manager.getFighterDefence(fighter2, 2));
+	manager.setFighterArmourPart(fighter2, 7, 0, 0, Inventaire.PartieCorps.CORPS);//ajout d'une cuirasse pour modifier le ND notamment d'esquive
+	Assert.assertEquals(20, manager.getFighterDefence(fighter2, 2));
+	manager.delFighterArmourPart(fighter2, Inventaire.PartieCorps.CORPS);
 
-	Assert.assertEquals(25, manager.getFighterDefence(fighter3, 3, false));
+	Assert.assertEquals(25, manager.getFighterDefence(fighter3, 3));
 
 	//test des libellés de persos
 	Assert.assertEquals("PersoRM1", manager.getFighterName(fighter1));
@@ -68,36 +70,36 @@ public class IntegTest
 
 	//test sur l'ajout-retrait d'arme et de boucliers (notamment sur l'impossibilité d'avoir arme à deux mains et bouclier en même temps)
 	manager.setFighterWeapon(fighter, 7, Arme.QualiteArme.superieure, Arme.EquilibrageArme.mauvais);
-	Assert.assertEquals("rapière de qualité supérieure et équilibrage mauvais", manager.getFighterCurrentWeaponName(fighter));
+	Assert.assertEquals("espadon de qualité supérieure et équilibrage mauvais", manager.getFighterCurrentWeaponName(fighter));
 	manager.delFighterWeapon(fighter);
 	Assert.assertEquals("mains nues", manager.getFighterCurrentWeaponName(fighter));
 	manager.setFighterWeapon(fighter, 14, Arme.QualiteArme.superieure, Arme.EquilibrageArme.mauvais);
-	Assert.assertEquals("épée à deux mains de qualité supérieure et équilibrage mauvais", manager.getFighterCurrentWeaponName(fighter));
-	manager.setFighterShield(fighter, 0, 0, 0);
+	Assert.assertEquals("bâton ferré de qualité supérieure et équilibrage mauvais", manager.getFighterCurrentWeaponName(fighter));
+	manager.setFighterShield(fighter, 0, 0);
 	Assert.assertEquals("mains nues", manager.getFighterCurrentWeaponName(fighter));
-	Assert.assertEquals("targe en métal", manager.getFighterShieldName(fighter));
+	Assert.assertEquals("targe", manager.getFighterShieldName(fighter));
 	manager.setFighterWeapon(fighter, 14, Arme.QualiteArme.superieure, Arme.EquilibrageArme.mauvais);
-	Assert.assertEquals("épée à deux mains de qualité supérieure et équilibrage mauvais", manager.getFighterCurrentWeaponName(fighter));
+	Assert.assertEquals("bâton ferré de qualité supérieure et équilibrage mauvais", manager.getFighterCurrentWeaponName(fighter));
 	Assert.assertEquals("aucun", manager.getFighterShieldName(fighter));
 	manager.setFighterWeapon(fighter, 7, Arme.QualiteArme.superieure, Arme.EquilibrageArme.mauvais);
-	Assert.assertEquals("rapière de qualité supérieure et équilibrage mauvais", manager.getFighterCurrentWeaponName(fighter));
+	Assert.assertEquals("espadon de qualité supérieure et équilibrage mauvais", manager.getFighterCurrentWeaponName(fighter));
 
 	//test sur l'ajout-retrait d'armure
-	manager.setFighterArmourPart(fighter, 0, 0, 0, Inventaire.ZoneEmplacement.TETE);
-	Assert.assertEquals("casque complet en plates", manager.getFighterArmourPartName(fighter, Inventaire.ZoneEmplacement.TETE));
-	manager.setFighterArmourPart(fighter, 7, 0, 0, Inventaire.ZoneEmplacement.CORPS);
-	Assert.assertEquals("cuirasse en plates", manager.getFighterArmourPartName(fighter, Inventaire.ZoneEmplacement.CORPS));
-	manager.setFighterArmourPart(fighter, 1, 0, 0, Inventaire.ZoneEmplacement.TETE);
-	Assert.assertEquals("casque ouvert en plates", manager.getFighterArmourPartName(fighter, Inventaire.ZoneEmplacement.TETE));
-	manager.delFighterArmourPart(fighter, Inventaire.ZoneEmplacement.CORPS);
-	Assert.assertEquals("aucun", manager.getFighterArmourPartName(fighter, Inventaire.ZoneEmplacement.CORPS));
-	manager.delFighterArmourPart(fighter, Inventaire.ZoneEmplacement.TETE);
-	Assert.assertEquals("aucun", manager.getFighterArmourPartName(fighter, Inventaire.ZoneEmplacement.TETE));
+	manager.setFighterArmourPart(fighter, 0, 0, 0, Inventaire.PartieCorps.TETE);
+	Assert.assertEquals("casque complet en plates", manager.getFighterArmourPartName(fighter, Inventaire.PartieCorps.TETE));
+	manager.setFighterArmourPart(fighter, 7, 0, 0, Inventaire.PartieCorps.CORPS);
+	Assert.assertEquals("cuirasse en plates", manager.getFighterArmourPartName(fighter, Inventaire.PartieCorps.CORPS));
+	manager.setFighterArmourPart(fighter, 1, 0, 0, Inventaire.PartieCorps.TETE);
+	Assert.assertEquals("casque ouvert en plates", manager.getFighterArmourPartName(fighter, Inventaire.PartieCorps.TETE));
+	manager.delFighterArmourPart(fighter, Inventaire.PartieCorps.CORPS);
+	Assert.assertEquals("aucun", manager.getFighterArmourPartName(fighter, Inventaire.PartieCorps.CORPS));
+	manager.delFighterArmourPart(fighter, Inventaire.PartieCorps.TETE);
+	Assert.assertEquals("aucun", manager.getFighterArmourPartName(fighter, Inventaire.PartieCorps.TETE));
 
 	//cas d'erreur : ajout au mauvais emplacement
 	try
 	{
-	    manager.setFighterArmourPart(fighter, 6, 0, 0, Inventaire.ZoneEmplacement.TETE);
+	    manager.setFighterArmourPart(fighter, 6, 0, 0, Inventaire.PartieCorps.TETE);
 	    fail();
 	}
 	catch (IllegalStateException e)
@@ -113,8 +115,8 @@ public class IntegTest
 	Assert.assertEquals(0, manager.getFighterTargetDefence(fighter));
 
 	//test succinct sur les blessures
-	SessionManager.HealthReport report = manager.hurtFighter(fighter, new Degats(1000, 4));
-	Assert.assertEquals(true, report.isOut());
-	Assert.assertEquals(true, report.isStunned());
+	EnsembleJauges.EtatVital report = manager.hurtFighter(fighter, new Degats(1000, 4));
+	Assert.assertTrue(report.isElimine());
+	Assert.assertTrue(report.isSonne());
     }
 }

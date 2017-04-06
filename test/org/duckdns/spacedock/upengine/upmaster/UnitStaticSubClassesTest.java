@@ -5,11 +5,7 @@
  */
 package org.duckdns.spacedock.upengine.upmaster;
 
-import org.duckdns.spacedock.upengine.libupsystem.Arme;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.duckdns.spacedock.upengine.libupsystem.Perso;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -25,7 +21,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(//pour les méthodes statiques c'est la classe appelante qui doit apparaître ici, pour les classes final c'est la classe appelée (donc UPReferenceSysteme n'apparaît ici que pour son caractère final et pas pour sa méthode getInstance()
 
 	{//les classes final, appelant du statique et les classes subissant un whennew
-	    SessionManager.class, CharacterAssembly.class, Arme.Degats.class
+	    SessionManager.class, CharacterAssembly.class, Perso.Degats.class
 	})
 public class UnitStaticSubClassesTest
 {
@@ -46,7 +42,7 @@ public class UnitStaticSubClassesTest
     @Test
     public void testAttackReport()
     {
-	Arme.Degats degatsMock = PowerMockito.mock(Arme.Degats.class);
+	Perso.Degats degatsMock = PowerMockito.mock(Perso.Degats.class);
 
 	SessionManager.AttackReport report1 = new SessionManager.AttackReport(degatsMock, false, true);
 	SessionManager.AttackReport report2 = new SessionManager.AttackReport(degatsMock, true, false);
@@ -59,24 +55,5 @@ public class UnitStaticSubClassesTest
 	assertEquals(degatsMock, report1.getDamage());
 	assertEquals(degatsMock, report2.getDamage());
 
-    }
-
-    @Test
-    public void testHealthReport()
-    {
-	SessionManager.HealthReport report1 = new SessionManager.HealthReport(0, 0, true, false);
-	SessionManager.HealthReport report2 = new SessionManager.HealthReport(17, 25, false, true);
-
-	assertEquals(0, report1.getDramaWounds());
-	assertEquals(25, report2.getDramaWounds());
-
-	assertEquals(0, report1.getFleshWounds());
-	assertEquals(17, report2.getFleshWounds());
-
-	assertTrue(report1.isStunned());
-	assertFalse(report1.isOut());
-
-	assertFalse(report1.isOut());
-	assertTrue(report1.isStunned());
     }
 }

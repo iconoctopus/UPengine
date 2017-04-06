@@ -12,8 +12,9 @@ import java.util.ListIterator;
 import org.duckdns.spacedock.commonutils.ErrorHandler;
 import org.duckdns.spacedock.commonutils.PropertiesHandler;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
-import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
+import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges;
 import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
+import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 
 /**
  * Contrôleur gérant la session à la fois comme singleton de configuration mais
@@ -218,15 +219,14 @@ public class SessionManager
      *
      * @param p_index indice du personnage ciblé
      * @param p_damage dégâts à infliger
-     * @return une structure contenant le nombres de blessures légères et graves
-     * ainsi que le statut sonné/inconscient du personnage
+     * @return un rapport complet sur l'état vital du personnage
      */
-    public HealthReport hurtFighter(int p_index, Degats p_damage)
+    public EnsembleJauges.EtatVital hurtFighter(int p_index, Degats p_damage)
     {
 	CharacterAssembly victim = m_listFighters.get(p_index);
 	victim.hurt(p_damage);
 
-	return (new HealthReport(victim.getNbFleshWounds(), victim.getNbDramaWounds(), victim.isStunned(), victim.isOut()));
+	return victim.getEtatVital();
     }
 
     /**
@@ -275,7 +275,7 @@ public class SessionManager
      * @param p_zone
      * @return
      */
-    public String getFighterArmourPartName(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
+    public String getFighterArmourPartName(int p_fighterIndex, Inventaire.PartieCorps p_zone)
     {
 	return m_listFighters.get(p_fighterIndex).getArmourPartName(p_zone);
     }
@@ -288,7 +288,7 @@ public class SessionManager
      * @param p_type
      * @param p_zone
      */
-    public void setFighterArmourPart(int p_fighterIndex, int p_index, int p_materiau, int p_type, Inventaire.ZoneEmplacement p_zone)
+    public void setFighterArmourPart(int p_fighterIndex, int p_index, int p_materiau, int p_type, Inventaire.PartieCorps p_zone)
     {
 	m_listFighters.get(p_fighterIndex).setArmourPart(p_index, p_materiau, p_type, p_zone);
     }
@@ -298,7 +298,7 @@ public class SessionManager
      * @param p_fighterIndex
      * @param p_zone
      */
-    public void delFighterArmourPart(int p_fighterIndex, Inventaire.ZoneEmplacement p_zone)
+    public void delFighterArmourPart(int p_fighterIndex, Inventaire.PartieCorps p_zone)
     {
 	m_listFighters.get(p_fighterIndex).delArmourPart(p_zone);
     }
@@ -320,9 +320,9 @@ public class SessionManager
      * @param p_materiau
      * @param p_type
      */
-    public void setFighterShield(int p_fighterIndex, int p_index, int p_materiau, int p_type)
+    public void setFighterShield(int p_fighterIndex, int p_index, int p_type)
     {
-	m_listFighters.get(p_fighterIndex).setShield(p_index, p_materiau, p_type);
+	m_listFighters.get(p_fighterIndex).setShield(p_index, p_type);
     }
 
     /**
@@ -375,9 +375,9 @@ public class SessionManager
      * @param p_dodge
      * @return
      */
-    public int getFighterDefence(int p_index, int p_weapType, boolean p_dodge)
+    public int getFighterDefence(int p_index, int p_weapType)
     {
-	return m_listFighters.get(p_index).getFighterDefense(p_weapType, p_dodge);
+	return m_listFighters.get(p_index).getFighterDefense(p_weapType);
     }
 
     /**
@@ -462,46 +462,6 @@ public class SessionManager
 	public boolean isStillActive()
 	{
 	    return m_stillActive;
-	}
-    }
-
-    /**
-     * classe permettant de représenter l'état de santé d'un personnage
-     */
-    public static class HealthReport
-    {
-
-	private final int m_fleshNumber;
-	private final int m_dramaNumber;
-	private final boolean m_isStunned;
-	private final boolean m_isOut;
-
-	public HealthReport(int p_flesh, int p_drama, boolean p_stunned, boolean p_out)
-	{
-	    m_fleshNumber = p_flesh;
-	    m_dramaNumber = p_drama;
-	    m_isStunned = p_stunned;
-	    m_isOut = p_out;
-	}
-
-	public boolean isOut()
-	{
-	    return (m_isOut);
-	}
-
-	public boolean isStunned()
-	{
-	    return (m_isStunned);
-	}
-
-	public int getFleshWounds()
-	{
-	    return (m_fleshNumber);
-	}
-
-	public int getDramaWounds()
-	{
-	    return (m_dramaNumber);
 	}
     }
 }

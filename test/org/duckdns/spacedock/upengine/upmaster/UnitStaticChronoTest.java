@@ -6,12 +6,8 @@
 package org.duckdns.spacedock.upengine.upmaster;
 
 import java.util.List;
-import org.duckdns.spacedock.upengine.libupsystem.Arme;
-import org.junit.After;
-import org.junit.AfterClass;
+import org.duckdns.spacedock.upengine.libupsystem.Perso;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -30,7 +26,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(//pour les méthodes statiques c'est la classe appelante qui doit apparaître ici, pour les classes final c'est la classe appelée (donc UPReferenceSysteme n'apparaît ici que pour son caractère final et pas pour sa méthode getInstance()
 
 	{//les classes final, appelant du statique et les classes subissant un whennew
-	    SessionManager.class, CharacterAssembly.class, Arme.Degats.class
+	    SessionManager.class, CharacterAssembly.class, Perso.Degats.class
 	})
 public class UnitStaticChronoTest
 {

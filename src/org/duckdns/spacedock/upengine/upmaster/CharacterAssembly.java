@@ -3,14 +3,16 @@ package org.duckdns.spacedock.upengine.upmaster;
 import java.util.ArrayList;
 import org.duckdns.spacedock.commonutils.PropertiesHandler;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
-import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeCaC;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeDist;
+import org.duckdns.spacedock.upengine.libupsystem.Bouclier;
+import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges.EtatVital;
 import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
+import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.PieceArmure;
 import org.duckdns.spacedock.upengine.libupsystem.RollUtils.RollResult;
-import org.duckdns.spacedock.upengine.libupsystem.UPReference;
+import org.duckdns.spacedock.upengine.libupsystem.UPReferenceArmes;
 import org.duckdns.spacedock.upengine.upmaster.SessionManager.AttackReport;
 
 /**
@@ -86,7 +88,7 @@ class CharacterAssembly
 	Inventaire inventaire = m_perso.getInventaire();
 
 	Arme arme;
-	if (UPReference.getInstance().getModArme(p_index) == 0)
+	if (UPReferenceArmes.getInstance().getModArme(p_index) == 0)
 	{
 	    arme = new ArmeCaC(p_index, p_quality, p_balance);
 	}
@@ -95,7 +97,7 @@ class CharacterAssembly
 	    arme = new ArmeDist(p_index, p_quality, p_balance);
 	}
 
-	if (arme.getNbMainsArme() > 1)
+	if (arme.isArme2Mains())
 	{
 	    if (inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE) != null)//TODO le bouclier est forcément à gauche pour l'instant
 	    {
@@ -130,7 +132,7 @@ class CharacterAssembly
     {
 	Arme currentWeapon = m_perso.getInventaire().getArmeCourante();
 
-	String weapName = UPReference.getInstance().getLblCatArmeCaC(0);//on renvoie mains nues par défaut
+	String weapName = UPReferenceArmes.getInstance().getListCatArmeCaC().get(0);//on renvoie mains nues par défaut
 	if (currentWeapon != null)
 	{
 	    weapName = currentWeapon.toString();
@@ -144,7 +146,7 @@ class CharacterAssembly
      * @param p_zone
      * @return
      */
-    String getArmourPartName(Inventaire.ZoneEmplacement p_zone)
+    String getArmourPartName(Inventaire.PartieCorps p_zone)
     {
 	Inventaire inventaire = m_perso.getInventaire();
 	String res = PropertiesHandler.getInstance("upmaster").getString("aucun");
@@ -164,14 +166,14 @@ class CharacterAssembly
      * @param p_zone
      * @return
      */
-    void setArmourPart(int p_index, int p_material, int p_type, Inventaire.ZoneEmplacement p_zone)
+    void setArmourPart(int p_index, int p_material, int p_type, Inventaire.PartieCorps p_zone)
     {
 	Inventaire inventaire = m_perso.getInventaire();
 	if (inventaire.getPieceArmure(p_zone) != null)
 	{
 	    inventaire.removePieceArmure(p_zone);
 	}
-	inventaire.addPieceArmure(new PieceArmure(p_index, p_material, p_type, false), p_zone);
+	inventaire.addPieceArmure(new PieceArmure(p_index, p_material, p_type), p_zone);
     }
 
     /**
@@ -179,7 +181,7 @@ class CharacterAssembly
      *
      * @param p_zone
      */
-    void delArmourPart(Inventaire.ZoneEmplacement p_zone)
+    void delArmourPart(Inventaire.PartieCorps p_zone)
     {
 	Inventaire inventaire = m_perso.getInventaire();
 	if (inventaire.getPieceArmure(p_zone) != null)
@@ -197,7 +199,7 @@ class CharacterAssembly
     {//TODO en l'absence de localisation le bouclier est pour l'instant forcément à gauche
 	Inventaire inventaire = m_perso.getInventaire();
 	String res = PropertiesHandler.getInstance("upmaster").getString("aucun");
-	PieceArmure bouclier = inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE);
+	Bouclier bouclier = inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE);
 	if (bouclier != null)
 	{
 	    res = bouclier.toString();
@@ -213,18 +215,18 @@ class CharacterAssembly
      * @param p_materiau
      * @param p_type
      */
-    void setShield(int p_index, int p_materiau, int p_type)
+    void setShield(int p_index, int p_type)
     {
 	Inventaire inventaire = m_perso.getInventaire();
 	Arme armeCourante = inventaire.getArmeCourante();
 	if (armeCourante != null)
 	{
-	    if (armeCourante.getNbMainsArme() > 1)//l'arme courante utilie deux mains, on la supprime donc pour installer le bouclier
+	    if (armeCourante.isArme2Mains())//l'arme courante utilie deux mains, on la supprime donc pour installer le bouclier
 	    {
 		delWeapon();
 	    }
 	}
-	inventaire.addBouclier(new PieceArmure(p_index, p_materiau, p_type, true), Inventaire.Lateralisation.GAUCHE);//TODO le bouclier est forcément à gauche
+	inventaire.addBouclier(new Bouclier(p_index, p_type), Inventaire.Lateralisation.GAUCHE);//TODO le bouclier est forcément à gauche
     }
 
     /**
@@ -262,7 +264,7 @@ class CharacterAssembly
      *
      * @return le ND propre du combattant
      */
-    int getFighterDefense(int p_weapType, boolean p_dodge)
+    int getFighterDefense(int p_weapType)
     {
 	Arme currentWeapon = m_perso.getInventaire().getArmeCourante();
 	int weapCategory = 0;
@@ -270,7 +272,7 @@ class CharacterAssembly
 	{
 	    weapCategory = currentWeapon.getCategorie();
 	}
-	return (m_perso.getNDPassif(p_weapType, weapCategory, p_dodge));
+	return (m_perso.getDefense(p_weapType, 0));//TODO pour l'instant on ne gère pas les adversaires supplémentaires
     }
 
     /**
@@ -294,40 +296,9 @@ class CharacterAssembly
 	return m_perso.getActions();
     }
 
-    /**
-     *
-     * @return si le personnage doit être éliminé
-     */
-    boolean isOut()
+    EtatVital getEtatVital()
     {
-	return m_perso.isInconscient() || m_perso.isElimine();//dans cette version l'inconscience vaut éliination
-    }
-
-    /**
-     *
-     * @return si le personnage est sonné
-     */
-    boolean isStunned()
-    {
-	return m_perso.isSonne();
-    }
-
-    /**
-     *
-     * @return nombre de blessures légères reçues
-     */
-    int getNbFleshWounds()
-    {
-	return m_perso.getBlessuresLegeres();
-    }
-
-    /**
-     *
-     * @return nombre de blessures graves reçues
-     */
-    int getNbDramaWounds()
-    {
-	return m_perso.getBlessuresGraves();
+	return m_perso.getEtatVital();
     }
 
     /**

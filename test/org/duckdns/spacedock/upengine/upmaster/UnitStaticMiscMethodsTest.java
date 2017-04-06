@@ -6,7 +6,9 @@
 package org.duckdns.spacedock.upengine.upmaster;
 
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
+import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges.EtatVital;
 import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
+import org.duckdns.spacedock.upengine.libupsystem.Perso;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -29,7 +31,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(//pour les méthodes statiques c'est la classe appelante qui doit apparaître ici, pour les classes final c'est la classe appelée (donc UPReferenceSysteme n'apparaît ici que pour son caractère final et pas pour sa méthode getInstance()
 
 	{//les classes final, appelant du statique et les classes subissant un whennew
-	    SessionManager.class, CharacterAssembly.class, Arme.Degats.class
+	    SessionManager.class, CharacterAssembly.class, Perso.Degats.class
 	})
 public class UnitStaticMiscMethodsTest
 {
@@ -49,21 +51,9 @@ public class UnitStaticMiscMethodsTest
     @Test
     public void testHurt() throws Exception
     {
-	when(assemblyMock.getNbDramaWounds()).thenReturn(2);
-	when(assemblyMock.getNbFleshWounds()).thenReturn(5);
-	when(assemblyMock.isStunned()).thenReturn(true);
-	when(assemblyMock.isOut()).thenReturn(false);
-
-	Arme.Degats degatsMock = PowerMockito.mock(Arme.Degats.class);
-
-	SessionManager.HealthReport report = manager.hurtFighter(currentFighter, degatsMock);
-
-	verify(assemblyMock).hurt(degatsMock);//on  vérifie que la bonne méthode est appelée dans le manager
-
-	assertEquals(2, report.getDramaWounds());
-	assertEquals(5, report.getFleshWounds());
-	assertFalse(report.isOut());
-	assertTrue(report.isStunned());
+	Perso.Degats degatsMock = PowerMockito.mock(Perso.Degats.class);
+	manager.hurtFighter(currentFighter, degatsMock);
+	verify(assemblyMock).hurt(degatsMock);
     }
 
     @Test
@@ -91,21 +81,21 @@ public class UnitStaticMiscMethodsTest
     @Test
     public void testArmure()
     {
-	manager.setFighterArmourPart(currentFighter, 1, 2, 3, Inventaire.ZoneEmplacement.TETE);
-	verify(assemblyMock).setArmourPart(1, 2, 3, Inventaire.ZoneEmplacement.TETE);
+	manager.setFighterArmourPart(currentFighter, 1, 2, 3, Inventaire.PartieCorps.TETE);
+	verify(assemblyMock).setArmourPart(1, 2, 3, Inventaire.PartieCorps.TETE);
 
-	manager.getFighterArmourPartName(currentFighter, Inventaire.ZoneEmplacement.TETE);
-	verify(assemblyMock).getArmourPartName(Inventaire.ZoneEmplacement.TETE);
+	manager.getFighterArmourPartName(currentFighter, Inventaire.PartieCorps.TETE);
+	verify(assemblyMock).getArmourPartName(Inventaire.PartieCorps.TETE);
 
-	manager.delFighterArmourPart(currentFighter, Inventaire.ZoneEmplacement.TETE);
-	verify(assemblyMock).delArmourPart(Inventaire.ZoneEmplacement.TETE);
+	manager.delFighterArmourPart(currentFighter, Inventaire.PartieCorps.TETE);
+	verify(assemblyMock).delArmourPart(Inventaire.PartieCorps.TETE);
     }
 
     @Test
     public void testBouclier()
     {
-	manager.setFighterShield(currentFighter, 1, 2, 3);
-	verify(assemblyMock).setShield(1, 2, 3);
+	manager.setFighterShield(currentFighter, 1, 2);
+	verify(assemblyMock).setShield(1, 2);
 
 	manager.getFighterShieldName(currentFighter);
 	verify(assemblyMock).getShieldName();
@@ -139,7 +129,7 @@ public class UnitStaticMiscMethodsTest
     @Test
     public void testGetDefensePassive()
     {
-	manager.getFighterDefence(currentFighter, 3, true);
-	verify(assemblyMock).getFighterDefense(3, true);
+	manager.getFighterDefence(currentFighter, 3);
+	verify(assemblyMock).getFighterDefense(3);
     }
 }
