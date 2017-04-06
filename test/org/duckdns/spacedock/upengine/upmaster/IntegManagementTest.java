@@ -5,6 +5,7 @@
  */
 package org.duckdns.spacedock.upengine.upmaster;
 
+import java.util.ArrayList;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges;
 import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
