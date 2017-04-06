@@ -7,7 +7,6 @@ import org.duckdns.spacedock.upengine.libupsystem.ArmeCaC;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeDist;
 import org.duckdns.spacedock.upengine.libupsystem.Bouclier;
 import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges.EtatVital;
-import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
 import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.PieceArmure;
@@ -33,6 +32,10 @@ class CharacterAssembly
      * ND de la cible courante
      */
     private int m_targetDefense;
+    /**
+     * l'inventaire du personnage de l'assembly
+     */
+    private Inventaire m_inventaire;
 
     /**
      * constructeur avec ND cible de 25 par défaut
@@ -54,6 +57,7 @@ class CharacterAssembly
     {
 	m_perso = new Perso(p_rm);
 	m_targetDefense = p_ND;
+	m_inventaire = new Inventaire();
     }
 
     /**
@@ -85,8 +89,6 @@ class CharacterAssembly
     void setCurrentWeapon(int p_index, Arme.QualiteArme p_quality, Arme.EquilibrageArme p_balance)
     {//TODO pour l'instant on ne s'occupe que du port d'une seule arme, forcément à droite
 
-	Inventaire inventaire = m_perso.getInventaire();
-
 	Arme arme;
 	if (UPReferenceArmes.getInstance().getModArme(p_index) == 0)
 	{
@@ -99,16 +101,16 @@ class CharacterAssembly
 
 	if (arme.isArme2Mains())
 	{
-	    if (inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE) != null)//TODO le bouclier est forcément à gauche pour l'instant
+	    if (m_inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE) != null)//TODO le bouclier est forcément à gauche pour l'instant
 	    {
-		inventaire.removeBouclier(Inventaire.Lateralisation.GAUCHE);
+		m_inventaire.removeBouclier(Inventaire.Lateralisation.GAUCHE);
 	    }
 	}
-	if (inventaire.getArmeCourante() != null)
+	if (m_inventaire.getArmeCourante() != null)
 	{
-	    inventaire.removeArme(Inventaire.Lateralisation.DROITE);
+	    m_inventaire.removeArme(Inventaire.Lateralisation.DROITE);
 	}
-	inventaire.addArme(arme, Inventaire.Lateralisation.DROITE);
+	m_inventaire.addArme(arme, Inventaire.Lateralisation.DROITE);
     }
 
     /**
@@ -117,10 +119,9 @@ class CharacterAssembly
      */
     void delWeapon()
     {
-	Inventaire inventaire = m_perso.getInventaire();
-	if (inventaire.getArmeCourante() != null)
+	if (m_inventaire.getArmeCourante() != null)
 	{
-	    inventaire.removeArme(Inventaire.Lateralisation.DROITE);
+	    m_inventaire.removeArme(Inventaire.Lateralisation.DROITE);
 	}
     }
 
@@ -130,7 +131,7 @@ class CharacterAssembly
      */
     String getCurrentWeaponName()
     {
-	Arme currentWeapon = m_perso.getInventaire().getArmeCourante();
+	Arme currentWeapon = m_inventaire.getArmeCourante();
 
 	String weapName = UPReferenceArmes.getInstance().getListCatArmeCaC().get(0);//on renvoie mains nues par défaut
 	if (currentWeapon != null)
@@ -148,9 +149,8 @@ class CharacterAssembly
      */
     String getArmourPartName(Inventaire.PartieCorps p_zone)
     {
-	Inventaire inventaire = m_perso.getInventaire();
 	String res = PropertiesHandler.getInstance("upmaster").getString("aucun");
-	PieceArmure piece = inventaire.getPieceArmure(p_zone);
+	PieceArmure piece = m_inventaire.getPieceArmure(p_zone);
 	if (piece != null)
 	{
 	    res = piece.toString();
@@ -168,12 +168,11 @@ class CharacterAssembly
      */
     void setArmourPart(int p_index, int p_material, int p_type, Inventaire.PartieCorps p_zone)
     {
-	Inventaire inventaire = m_perso.getInventaire();
-	if (inventaire.getPieceArmure(p_zone) != null)
+	if (m_inventaire.getPieceArmure(p_zone) != null)
 	{
-	    inventaire.removePieceArmure(p_zone);
+	    m_inventaire.removePieceArmure(p_zone);
 	}
-	inventaire.addPieceArmure(new PieceArmure(p_index, p_material, p_type), p_zone);
+	m_inventaire.addPieceArmure(new PieceArmure(p_index, p_material, p_type), p_zone);
     }
 
     /**
@@ -183,10 +182,9 @@ class CharacterAssembly
      */
     void delArmourPart(Inventaire.PartieCorps p_zone)
     {
-	Inventaire inventaire = m_perso.getInventaire();
-	if (inventaire.getPieceArmure(p_zone) != null)
+	if (m_inventaire.getPieceArmure(p_zone) != null)
 	{
-	    inventaire.removePieceArmure(p_zone);
+	    m_inventaire.removePieceArmure(p_zone);
 	}
     }
 
@@ -197,9 +195,8 @@ class CharacterAssembly
      */
     String getShieldName()
     {//TODO en l'absence de localisation le bouclier est pour l'instant forcément à gauche
-	Inventaire inventaire = m_perso.getInventaire();
 	String res = PropertiesHandler.getInstance("upmaster").getString("aucun");
-	Bouclier bouclier = inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE);
+	Bouclier bouclier = m_inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE);
 	if (bouclier != null)
 	{
 	    res = bouclier.toString();
@@ -217,8 +214,7 @@ class CharacterAssembly
      */
     void setShield(int p_index, int p_type)
     {
-	Inventaire inventaire = m_perso.getInventaire();
-	Arme armeCourante = inventaire.getArmeCourante();
+	Arme armeCourante = m_inventaire.getArmeCourante();
 	if (armeCourante != null)
 	{
 	    if (armeCourante.isArme2Mains())//l'arme courante utilie deux mains, on la supprime donc pour installer le bouclier
@@ -226,7 +222,7 @@ class CharacterAssembly
 		delWeapon();
 	    }
 	}
-	inventaire.addBouclier(new Bouclier(p_index, p_type), Inventaire.Lateralisation.GAUCHE);//TODO le bouclier est forcément à gauche
+	m_inventaire.addBouclier(new Bouclier(p_index, p_type), Inventaire.Lateralisation.GAUCHE);//TODO le bouclier est forcément à gauche
     }
 
     /**
@@ -235,10 +231,9 @@ class CharacterAssembly
      */
     void delShield()
     {
-	Inventaire inventaire = m_perso.getInventaire();
-	if (inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE) != null)//TODO le bouclier est forcément à gauche
+	if (m_inventaire.getBouclier(Inventaire.Lateralisation.GAUCHE) != null)//TODO le bouclier est forcément à gauche
 	{
-	    inventaire.removeBouclier(Inventaire.Lateralisation.GAUCHE);
+	    m_inventaire.removeBouclier(Inventaire.Lateralisation.GAUCHE);
 	}
     }
 
@@ -266,13 +261,7 @@ class CharacterAssembly
      */
     int getFighterDefense(int p_weapType)
     {
-	Arme currentWeapon = m_perso.getInventaire().getArmeCourante();
-	int weapCategory = 0;
-	if (currentWeapon != null)
-	{
-	    weapCategory = currentWeapon.getCategorie();
-	}
-	return (m_perso.getDefense(p_weapType, 0));//TODO pour l'instant on ne gère pas les adversaires supplémentaires
+	return (m_perso.getDefense(p_weapType, 0, m_inventaire.getArmure()));//TODO pour l'instant on ne gère pas les adversaires supplémentaires
     }
 
     /**
@@ -311,11 +300,11 @@ class CharacterAssembly
     AttackReport attack(int p_currentPhase)//TODO pour l'instant ne gère que les armes de corps à corps
     {
 	Degats finalResult = new Degats(0, 0);
-	RollResult technicalResult = m_perso.attaquerCaC(p_currentPhase, m_targetDefense);
+	RollResult technicalResult = m_perso.attaquerCaC(p_currentPhase, m_targetDefense, (ArmeCaC) m_inventaire.getArmeCourante());
 
 	if (technicalResult.isJetReussi())//extraction des dégâts
 	{
-	    finalResult = m_perso.genererDegats(technicalResult.getNbIncrements());
+	    finalResult = m_perso.genererDegats(technicalResult.getNbIncrements(), m_inventaire.getArmeCourante());
 	}
 	return new AttackReport(finalResult, technicalResult.isJetReussi(), isActive(p_currentPhase));
     }
@@ -327,7 +316,7 @@ class CharacterAssembly
      */
     void hurt(Degats p_degats)
     {
-	m_perso.etreBlesse(p_degats);
+	m_perso.etreBlesse(p_degats, m_inventaire.getArmure());
     }
 
     /**

@@ -7,8 +7,6 @@ package org.duckdns.spacedock.upengine.upmaster;
 
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges;
-
-import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
 import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 import org.junit.Assert;
 import static org.junit.Assert.fail;
@@ -18,7 +16,7 @@ import org.junit.Test;
  *
  * @author ykonoclast
  */
-public class IntegTest
+public class IntegManagementTest
 {//TODO tests d'intégration : faire regénérer init du perso et faire un tour de combat "à blanc"
 
     @Test

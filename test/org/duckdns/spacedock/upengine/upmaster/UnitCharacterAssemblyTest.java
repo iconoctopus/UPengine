@@ -10,7 +10,6 @@ import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeCaC;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeDist;
 import org.duckdns.spacedock.upengine.libupsystem.Bouclier;
-import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
 import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.PieceArmure;
@@ -62,7 +61,7 @@ public class UnitCharacterAssemblyTest
 	whenNew(Perso.class).withAnyArguments().thenReturn(persoMock);
 
 	inventaireMock = PowerMockito.mock(Inventaire.class);
-	when(persoMock.getInventaire()).thenReturn(inventaireMock);//on retourne le mock d'inventaire quand demandé
+	whenNew(Inventaire.class).withAnyArguments().thenReturn(inventaireMock);
 
 	referenceMock = PowerMockito.mock(UPReferenceArmes.class);
 	PowerMockito.mockStatic(UPReferenceArmes.class);//nécessaire quand on mocke une classe statique
@@ -98,7 +97,6 @@ public class UnitCharacterAssemblyTest
 	when(referenceMock.getListCatArmeCaC()).thenReturn(listPourrie);
 
 	Assert.assertEquals("reponse mains nues", assemblyTest.getCurrentWeaponName());//on a correctement réagi à l'absence d'arme courante
-	verify(persoMock).getInventaire();//appel pour récupérer l'inventaire
 	verify(inventaireMock).getArmeCourante();//appel pour vérifier quelle est l'arme courante
 	verify(referenceMock).getListCatArmeCaC();//appel pour vérifier le nom de la cat d'arme mains nues
 
@@ -218,12 +216,12 @@ public class UnitCharacterAssemblyTest
 	Perso.Degats degatMock = PowerMockito.mock(Degats.class);
 	whenNew(Degats.class).withArguments(0, 0).thenReturn(degatMock);
 	when(rollResultMock.isJetReussi()).thenReturn(false);
-	when(persoMock.attaquerCaC(0, 25)).thenReturn(rollResultMock);
+	when(persoMock.attaquerCaC(0, 25, null)).thenReturn(rollResultMock);
 	when(persoMock.isActif(0)).thenReturn(true);
 
 	AttackReport result = assemblyTest.attack(0);
 	verify(rollResultMock, times(2)).isJetReussi();
-	verify(persoMock).attaquerCaC(0, 25);
+	verify(persoMock).attaquerCaC(0, 25, null);
 	assertFalse(result.assess());
 	assertEquals(degatMock, result.getDamage());
 	assertTrue(result.isStillActive());
@@ -231,10 +229,10 @@ public class UnitCharacterAssemblyTest
 	//cas de réussite
 	when(rollResultMock.isJetReussi()).thenReturn(true);
 	when(rollResultMock.getNbIncrements()).thenReturn(2);
-	when(persoMock.genererDegats(2)).thenReturn(degatMock);
+	when(persoMock.genererDegats(2, null)).thenReturn(degatMock);
 
 	result = assemblyTest.attack(0);
-	verify(persoMock).genererDegats(2);
+	verify(persoMock).genererDegats(2, null);
 	assertTrue(result.assess());
 	assertEquals(degatMock, result.getDamage());
 	assertTrue(result.isStillActive());
@@ -245,6 +243,6 @@ public class UnitCharacterAssemblyTest
     {
 	Degats degatMock = PowerMockito.mock(Degats.class);
 	assemblyTest.hurt(degatMock);
-	verify(persoMock).etreBlesse(degatMock);
+	verify(persoMock).etreBlesse(degatMock, null);
     }
 }

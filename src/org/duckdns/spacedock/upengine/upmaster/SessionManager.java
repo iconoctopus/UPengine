@@ -13,7 +13,6 @@ import org.duckdns.spacedock.commonutils.ErrorHandler;
 import org.duckdns.spacedock.commonutils.PropertiesHandler;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
 import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges;
-import org.duckdns.spacedock.upengine.libupsystem.Inventaire;
 import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 
 /**
@@ -317,7 +316,6 @@ public class SessionManager
      *
      * @param p_fighterIndex
      * @param p_index
-     * @param p_materiau
      * @param p_type
      */
     public void setFighterShield(int p_fighterIndex, int p_index, int p_type)
