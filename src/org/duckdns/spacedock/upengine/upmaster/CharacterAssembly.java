@@ -306,7 +306,7 @@ class CharacterAssembly
 	{
 	    finalResult = m_perso.genererDegats(technicalResult.getNbIncrements(), m_inventaire.getArmeCourante());
 	}
-	return new AttackReport(finalResult, technicalResult.isJetReussi(), isActive(p_currentPhase));
+	return new AttackReport(finalResult, technicalResult.isJetReussi(), isActive(p_currentPhase), m_perso.getActions());
     }
 
     /**

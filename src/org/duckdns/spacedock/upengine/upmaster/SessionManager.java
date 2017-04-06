@@ -99,12 +99,13 @@ public class SessionManager
     {
 	int newIndex = 0;
 	boolean isActive = false;
+	ArrayList<Integer> listActions = new ArrayList<>();
 	if (p_rm > 0)
 	{
 	    CharacterAssembly newFighter;
 	    if (m_indexIterator.hasNext())//il y a eu des libérations on renvoie donc la première case libre
 	    {
-		newIndex = (m_indexIterator.next()).intValue();
+		newIndex = m_indexIterator.next();
 		m_indexIterator.previous();//on a récupéré une valeur, il faut donc la supprimer de la liste car cet indice va désormais être occupé par un combattant
 		m_indexIterator.remove();
 		newFighter = new CharacterAssembly(p_rm);
@@ -118,6 +119,7 @@ public class SessionManager
 	    }
 
 	    isActive = newFighter.isActive(m_currentPhase);
+	    listActions = newFighter.getActions();
 
 	    if (isActive)//si le combattant est actif dans la phase courante, on ajoute son indice à la liste idoine
 	    {
@@ -128,7 +130,7 @@ public class SessionManager
 	{
 	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getErrorMessage("erreurRM"));
 	}
-	return (new CreationReport(newIndex, isActive));
+	return (new CreationReport(newIndex, isActive, listActions));
     }
 
     /**
@@ -193,7 +195,7 @@ public class SessionManager
      */
     public AttackReport makeFighterAttack(int p_index)
     {
-	AttackReport result = new AttackReport(new Degats(0, 0), true, true);
+	AttackReport result = new AttackReport(new Degats(0, 0), true, true, new ArrayList<Integer>());
 
 	CharacterAssembly attacker = m_listFighters.get(p_index);
 	if (attacker.isActive(m_currentPhase))
@@ -379,6 +381,16 @@ public class SessionManager
     }
 
     /**
+     *
+     * @param p_index
+     * @return les actions restantes dans ce tour au combattant indiqué
+     */
+    public ArrayList<Integer> getFighterActions(int p_index)
+    {
+	return m_listFighters.get(p_index).getActions();
+    }
+
+    /**
      * @return la phase courante
      */
     public int getCurrentPhase()
@@ -412,11 +424,13 @@ public class SessionManager
 
 	private final int m_index;
 	private final boolean m_assessment;
+	private final ArrayList<Integer> m_listActions;
 
-	public CreationReport(int p_index, boolean p_assessment)
+	public CreationReport(int p_index, boolean p_isActive, ArrayList<Integer> p_ActionsLeft)
 	{
 	    m_index = p_index;
-	    m_assessment = p_assessment;
+	    m_assessment = p_isActive;
+	    m_listActions = p_ActionsLeft;
 	}
 
 	public int getIndex()
@@ -424,9 +438,14 @@ public class SessionManager
 	    return m_index;
 	}
 
-	public boolean assess()
+	public boolean isActive()
 	{
 	    return (m_assessment);
+	}
+
+	public ArrayList<Integer> getActionsLeft()
+	{
+	    return m_listActions;
 	}
     }
 
@@ -437,14 +456,16 @@ public class SessionManager
     {
 
 	private final Degats m_damage;
-	boolean m_assessment;
+	private final boolean m_assessment;
 	private final boolean m_stillActive;
+	private final ArrayList<Integer> m_listActions;
 
-	public AttackReport(Degats p_damage, boolean p_assessment, boolean p_stillActive)
+	public AttackReport(Degats p_damage, boolean p_assessment, boolean p_stillActive, ArrayList<Integer> p_ActionsLeft)
 	{
 	    m_damage = p_damage;
 	    m_assessment = p_assessment;
 	    m_stillActive = p_stillActive;
+	    m_listActions = p_ActionsLeft;
 	}
 
 	public Degats getDamage()
@@ -460,6 +481,11 @@ public class SessionManager
 	public boolean isStillActive()
 	{
 	    return m_stillActive;
+	}
+
+	public ArrayList<Integer> getActionsLeft()
+	{
+	    return m_listActions;
 	}
     }
 }

@@ -5,6 +5,7 @@
  */
 package org.duckdns.spacedock.upengine.upmaster;
 
+import java.util.ArrayList;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -29,14 +30,21 @@ public class UnitStaticSubClassesTest
     @Test
     public void testCreationReport()
     {
-	SessionManager.CreationReport report1 = new SessionManager.CreationReport(0, true);
-	SessionManager.CreationReport report2 = new SessionManager.CreationReport(7, false);
+	ArrayList<Integer> listActions = new ArrayList<>();
+	listActions.add(5);
+	listActions.add(2);
 
-	assertTrue(report1.assess());
-	assertFalse(report2.assess());
+	SessionManager.CreationReport report1 = new SessionManager.CreationReport(0, true, listActions);
+	SessionManager.CreationReport report2 = new SessionManager.CreationReport(7, false, listActions);
+
+	assertTrue(report1.isActive());
+	assertFalse(report2.isActive());
 
 	assertEquals(0, report1.getIndex());
 	assertEquals(7, report2.getIndex());
+
+	assertEquals(listActions, report1.getActionsLeft());
+	assertEquals(listActions, report2.getActionsLeft());
     }
 
     @Test
@@ -44,8 +52,11 @@ public class UnitStaticSubClassesTest
     {
 	Perso.Degats degatsMock = PowerMockito.mock(Perso.Degats.class);
 
-	SessionManager.AttackReport report1 = new SessionManager.AttackReport(degatsMock, false, true);
-	SessionManager.AttackReport report2 = new SessionManager.AttackReport(degatsMock, true, false);
+	ArrayList<Integer> listActions = new ArrayList<>();
+	listActions.add(5);
+
+	SessionManager.AttackReport report1 = new SessionManager.AttackReport(degatsMock, false, true, listActions);
+	SessionManager.AttackReport report2 = new SessionManager.AttackReport(degatsMock, true, false, listActions);
 
 	assertTrue(report1.isStillActive());
 	assertFalse(report2.isStillActive());
@@ -55,5 +66,7 @@ public class UnitStaticSubClassesTest
 	assertEquals(degatsMock, report1.getDamage());
 	assertEquals(degatsMock, report2.getDamage());
 
+	assertEquals(listActions, report1.getActionsLeft());
+	assertEquals(listActions, report2.getActionsLeft());
     }
 }

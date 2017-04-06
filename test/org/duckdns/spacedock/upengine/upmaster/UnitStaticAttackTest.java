@@ -44,7 +44,7 @@ public class UnitStaticAttackTest
 	Perso.Degats degatsMock = PowerMockito.mock(Perso.Degats.class);
 
 	//test du cas ou le combattant est actif et possède une seconde action derrière
-	SessionManager.AttackReport report1 = new SessionManager.AttackReport(degatsMock, true, true);
+	SessionManager.AttackReport report1 = new SessionManager.AttackReport(degatsMock, true, true, null);
 	when(assemblyMock.attack(1)).thenReturn(report1);
 
 	assertEquals(report1, manager.makeFighterAttack(0));//on vérifie que le bon rapport est renvoyé
@@ -56,7 +56,7 @@ public class UnitStaticAttackTest
 	assertEquals(0, (int) listActive.get(0));//et que c'est le combattant ajouté précédemment
 
 	//test du cas ou le combattant est actif mais ne l'est plus à l'issue de l'attaque
-	SessionManager.AttackReport report2 = new SessionManager.AttackReport(degatsMock, true, false);
+	SessionManager.AttackReport report2 = new SessionManager.AttackReport(degatsMock, true, false, null);
 	when(assemblyMock.attack(2)).thenReturn(report2);
 
 	assertEquals(report2, manager.makeFighterAttack(0));
