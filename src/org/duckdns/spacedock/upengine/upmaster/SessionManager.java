@@ -355,7 +355,7 @@ public class SessionManager
 	}
 	else
 	{
-	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getString("défense") + ":" + p_ND);
+	    ErrorHandler.paramAberrant(PropertiesHandler.getInstance("upmaster").getString("defense") + ":" + p_ND);
 	}
     }
 
