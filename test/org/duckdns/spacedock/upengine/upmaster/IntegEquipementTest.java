@@ -70,31 +70,31 @@ public class IntegEquipementTest
 	assemblyRM3.setArmourPart(3, 0, 2, Inventaire.PartieCorps.MAINDROITE);
 	Assert.assertEquals("gantelet en cuir clouté", assemblyRM3.getArmourPartName(Inventaire.PartieCorps.MAINDROITE));
 
-	//récupération de l'armure totale (avec les deux bottes)
-	Assert.assertEquals(40, assemblyRM3.getFighterDefense(1));
-	Assert.assertEquals(35, assemblyRM3.getFighterDefense(2));
+	//récupération de l'armure totale
+	Assert.assertEquals(34, assemblyRM3.getFighterDefense(1));
+	Assert.assertEquals(31, assemblyRM3.getFighterDefense(2));
 
 	//suppression de l'une des pièce d'armure et vérification qu'elle est effective
 	assemblyRM3.delArmourPart(Inventaire.PartieCorps.PIEDGAUCHE);
 	Assert.assertEquals("aucun", assemblyRM3.getArmourPartName(Inventaire.PartieCorps.PIEDGAUCHE));
 
 	//récupération de l'armure totale (avec le trou dans la liste au niveau du pied gauche)
-	Assert.assertEquals(35, assemblyRM3.getFighterDefense(1));
-	Assert.assertEquals(40, assemblyRM3.getFighterDefense(0));
-	Assert.assertEquals(35, assemblyRM3.getFighterDefense(2));
+	Assert.assertEquals(33, assemblyRM3.getFighterDefense(1));
+	Assert.assertEquals(35, assemblyRM3.getFighterDefense(0));
+	Assert.assertEquals(31, assemblyRM3.getFighterDefense(2));
 
 	//test de l'ajout d'un bouclier
 	assemblyRM3.setShield(0, 2);
 	Assert.assertEquals("targe avec blindage", assemblyRM3.getShieldName());
-	Assert.assertEquals(40, assemblyRM3.getFighterDefense(2));//le bouclier doit avoir fait augmenter le type général de l'armure en plus de lui avoir fait passer un rang
-	Assert.assertEquals(35, assemblyRM3.getFighterDefense(3));
+	Assert.assertEquals(34, assemblyRM3.getFighterDefense(2));//le bouclier doit avoir fait augmenter le type général de l'armure en plus de lui avoir fait passer un rang
+	Assert.assertEquals(31, assemblyRM3.getFighterDefense(3));
 	Assert.assertEquals(30, assemblyRM3.getFighterDefense(4));
 
 	//on retire le bouclier, tout doit redevenir comme avant
 	assemblyRM3.delShield();
-	Assert.assertEquals(35, assemblyRM3.getFighterDefense(1));
-	Assert.assertEquals(40, assemblyRM3.getFighterDefense(0));
-	Assert.assertEquals(35, assemblyRM3.getFighterDefense(2));
+	Assert.assertEquals(33, assemblyRM3.getFighterDefense(1));
+	Assert.assertEquals(35, assemblyRM3.getFighterDefense(0));
+	Assert.assertEquals(31, assemblyRM3.getFighterDefense(2));
     }
 
     @Test

@@ -6,7 +6,7 @@
 package org.duckdns.spacedock.upengine.upmaster;
 
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
-import org.duckdns.spacedock.upengine.libupsystem.Perso;
+import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Before;
@@ -26,7 +26,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(//pour les méthodes statiques c'est la classe appelante qui doit apparaître ici, pour les classes final c'est la classe appelée (donc UPReferenceSysteme n'apparaît ici que pour son caractère final et pas pour sa méthode getInstance()
 
 	{//les classes final, appelant du statique et les classes subissant un whennew
-	    SessionManager.class, CharacterAssembly.class, Perso.Degats.class
+	    SessionManager.class, CharacterAssembly.class, Arme.Degats.class
 	})
 public class UnitStaticMiscMethodsTest
 {
@@ -46,7 +46,7 @@ public class UnitStaticMiscMethodsTest
     @Test
     public void testHurt() throws Exception
     {
-	Perso.Degats degatsMock = PowerMockito.mock(Perso.Degats.class);
+	Degats degatsMock = PowerMockito.mock(Degats.class);
 	manager.hurtFighter(currentFighter, degatsMock);
 	verify(assemblyMock).hurt(degatsMock);
     }

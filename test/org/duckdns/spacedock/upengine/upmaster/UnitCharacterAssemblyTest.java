@@ -7,11 +7,11 @@ package org.duckdns.spacedock.upengine.upmaster;
 
 import java.util.ArrayList;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
+import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeCaC;
 import org.duckdns.spacedock.upengine.libupsystem.ArmeDist;
 import org.duckdns.spacedock.upengine.libupsystem.Bouclier;
 import org.duckdns.spacedock.upengine.libupsystem.Perso;
-import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.PieceArmure;
 import org.duckdns.spacedock.upengine.libupsystem.RollUtils;
 import org.duckdns.spacedock.upengine.libupsystem.RollUtils.RollResult;
@@ -213,7 +213,7 @@ public class UnitCharacterAssemblyTest
     {
 	//Cas d'échec
 	RollUtils.RollResult rollResultMock = PowerMockito.mock(RollResult.class);
-	Perso.Degats degatMock = PowerMockito.mock(Degats.class);
+	Degats degatMock = PowerMockito.mock(Degats.class);
 	whenNew(Degats.class).withArguments(0, 0).thenReturn(degatMock);
 	when(rollResultMock.isJetReussi()).thenReturn(false);
 	when(persoMock.attaquerCaC(0, 25, null)).thenReturn(rollResultMock);

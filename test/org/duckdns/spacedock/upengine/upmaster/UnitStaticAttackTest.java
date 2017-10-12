@@ -6,7 +6,8 @@
 package org.duckdns.spacedock.upengine.upmaster;
 
 import java.util.List;
-import org.duckdns.spacedock.upengine.libupsystem.Perso;
+import org.duckdns.spacedock.upengine.libupsystem.Arme;
+import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -26,7 +27,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(//pour les méthodes statiques c'est la classe appelante qui doit apparaître ici, pour les classes final c'est la classe appelée (donc UPReferenceSysteme n'apparaît ici que pour son caractère final et pas pour sa méthode getInstance()
 
 	{//les classes final, appelant du statique et les classes subissant un whennew
-	    SessionManager.class, CharacterAssembly.class, Perso.Degats.class
+	    SessionManager.class, CharacterAssembly.class, Arme.Degats.class
 	})
 public class UnitStaticAttackTest
 {
@@ -41,7 +42,7 @@ public class UnitStaticAttackTest
 	SessionManager manager = SessionManager.getInstance();
 	manager.addFighter(1);
 
-	Perso.Degats degatsMock = PowerMockito.mock(Perso.Degats.class);
+	Degats degatsMock = PowerMockito.mock(Degats.class);
 
 	//test du cas ou le combattant est actif et possède une seconde action derrière
 	SessionManager.AttackReport report1 = new SessionManager.AttackReport(degatsMock, true, true, null);

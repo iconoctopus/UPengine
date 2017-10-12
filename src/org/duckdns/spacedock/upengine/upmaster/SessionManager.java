@@ -12,8 +12,8 @@ import java.util.ListIterator;
 import org.duckdns.spacedock.commonutils.ErrorHandler;
 import org.duckdns.spacedock.commonutils.PropertiesHandler;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
+import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges;
-import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 
 /**
  * Contrôleur gérant la session à la fois comme singleton de configuration mais

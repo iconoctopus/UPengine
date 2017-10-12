@@ -5,10 +5,9 @@
  */
 package org.duckdns.spacedock.upengine.upmaster;
 
-import java.util.ArrayList;
 import org.duckdns.spacedock.upengine.libupsystem.Arme;
+import org.duckdns.spacedock.upengine.libupsystem.Arme.Degats;
 import org.duckdns.spacedock.upengine.libupsystem.EnsembleJauges;
-import org.duckdns.spacedock.upengine.libupsystem.Perso.Degats;
 import org.junit.Assert;
 import static org.junit.Assert.fail;
 import org.junit.Test;
