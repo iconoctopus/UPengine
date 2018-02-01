@@ -102,7 +102,7 @@ public class Inventaire
 		else
 		{
 		    //exception autre main pas libre mais tentative d'ajouter une arme à deux mains quand même
-		    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("autre_main_pas_libre"));
+		    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("autre_main_pas_libre"));
 		}
 	    }
 	    mainCible.setArme(p_arme);//ajout effectif de l'arme
@@ -110,7 +110,7 @@ public class Inventaire
 	else
 	{
 	    //exception main principale pas libre
-	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emplacement_pas_libre"));
+	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emplacement_pas_libre"));
 	}
     }
 
@@ -144,7 +144,7 @@ public class Inventaire
 	else
 	{
 	    //exception emplacement non libre
-	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emplacement_pas_libre"));
+	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emplacement_pas_libre"));
 	}
     }
 
@@ -167,7 +167,7 @@ public class Inventaire
 	else
 	{
 	    //exception emplacement non libre
-	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emplacement_pas_libre"));
+	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emplacement_pas_libre"));
 	}
     }
 
@@ -264,7 +264,7 @@ public class Inventaire
 	else
 	{
 	    //exception main principale non occupée
-	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emplacement_non_occupe"));
+	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emplacement_non_occupe"));
 	}
     }
 
@@ -297,7 +297,7 @@ public class Inventaire
 	}
 	else
 	{
-	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emplacement_non_occupe"));
+	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emplacement_non_occupe"));
 	}
     }
 
@@ -318,7 +318,7 @@ public class Inventaire
 	}
 	else
 	{
-	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emplacement_non_occupe"));
+	    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emplacement_non_occupe"));
 	}
     }
 
@@ -453,7 +453,7 @@ public class Inventaire
 	{
 	    if (isOccupeArmure())//si une pièce est déjà présente
 	    {
-		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emp_occupe"));
+		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emp_occupe"));
 	    }
 	    else
 	    {
@@ -464,7 +464,7 @@ public class Inventaire
 		}
 		else
 		{
-		    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("mauv_loca"));
+		    ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("mauv_loca"));
 		}
 	    }
 	}
@@ -481,7 +481,7 @@ public class Inventaire
 	    }
 	    else
 	    {
-		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emplacement_non_occupe"));
+		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emplacement_non_occupe"));
 	    }
 	}
 
@@ -543,7 +543,7 @@ public class Inventaire
 	{
 	    if (isOccupeArmeBouclier())
 	    {
-		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emp_occupe"));
+		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emp_occupe"));
 	    }
 	    else
 	    {
@@ -581,7 +581,7 @@ public class Inventaire
 	{
 	    if (isOccupeArmeBouclier())
 	    {
-		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emp_occupe"));
+		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emp_occupe"));
 	    }
 	    else
 	    {
@@ -602,7 +602,7 @@ public class Inventaire
 	    }
 	    else
 	    {
-		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emplacement_non_occupe"));
+		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emplacement_non_occupe"));
 	    }
 	}
 
@@ -618,7 +618,7 @@ public class Inventaire
 	    }
 	    else
 	    {
-		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("libupsystem").getErrorMessage("emplacement_non_occupe"));
+		ErrorHandler.mauvaiseMethode(PropertiesHandler.getInstance("upmaster").getErrorMessage("emplacement_non_occupe"));
 	    }
 	}
 
